@@ -1,0 +1,1131 @@
+{
+  "Header": {
+    "Time": "2021-08-05T18:35:20-07:00",
+    "ReportName": "AccountList",
+    "Currency": "AUD",
+    "Option": [
+      {
+        "Name": "NoReportData",
+        "Value": "false"
+      }
+    ]
+  },
+  "Columns": {
+    "Column": [
+      {
+        "ColTitle": "Account",
+        "ColType": "String",
+        "MetaData": [
+          {
+            "Name": "ColKey",
+            "Value": "account_name"
+          }
+        ]
+      },
+      {
+        "ColTitle": "Type",
+        "ColType": "String",
+        "MetaData": [
+          {
+            "Name": "ColKey",
+            "Value": "account_type"
+          }
+        ]
+      },
+      {
+        "ColTitle": "Detail type",
+        "ColType": "String",
+        "MetaData": [
+          {
+            "Name": "ColKey",
+            "Value": "detail_acc_type"
+          }
+        ]
+      },
+      {
+        "ColTitle": "Description",
+        "ColType": "String",
+        "MetaData": [
+          {
+            "Name": "ColKey",
+            "Value": "account_desc"
+          }
+        ]
+      },
+      {
+        "ColTitle": "Balance",
+        "ColType": "Money",
+        "MetaData": [
+          {
+            "Name": "ColKey",
+            "Value": "account_bal"
+          }
+        ]
+      }
+    ]
+  },
+  "Rows": {
+    "Row": [
+      {
+        "ColData": [
+          {
+            "value": "Cash on hand"
+          },
+          {
+            "value": "Cash and cash equivalents"
+          },
+          {
+            "value": "Cash on hand"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "5445.00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "MyJobs_test"
+          },
+          {
+            "value": "Accounts receivable (A/R)"
+          },
+          {
+            "value": "Accounts Receivable (A/R)"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "-64821.47"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Inventory"
+          },
+          {
+            "value": "Current assets"
+          },
+          {
+            "value": "Inventory"
+          },
+          {
+            "value": "Inventory"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Inventory Asset"
+          },
+          {
+            "value": "Current assets"
+          },
+          {
+            "value": "Inventory"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Uncategorised Asset"
+          },
+          {
+            "value": "Current assets"
+          },
+          {
+            "value": "Other current assets"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Undeposited funds"
+          },
+          {
+            "value": "Current assets"
+          },
+          {
+            "value": "Undeposited Funds"
+          },
+          {
+            "value": "Money from the business not yet deposited into a business bank account"
+          },
+          {
+            "value": "4340543.06"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Motor vehicles at cost"
+          },
+          {
+            "value": "Fixed assets"
+          },
+          {
+            "value": "Vehicles"
+          },
+          {
+            "value": "Cost of purchasing or leasing motor vehicles for business purposes"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Office furniture and equipment at cost"
+          },
+          {
+            "value": "Fixed assets"
+          },
+          {
+            "value": "Other fixed assets"
+          },
+          {
+            "value": "Cost of buying or leasing furniture and equipment"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Credit Card 123"
+          },
+          {
+            "value": "Credit card"
+          },
+          {
+            "value": "Credit Card"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "-9000.00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Credit Card Test"
+          },
+          {
+            "value": "Credit card"
+          },
+          {
+            "value": "Credit Card"
+          },
+          {
+            "value": "S"
+          },
+          {
+            "value": "-90900.00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "PAYG instalments payable"
+          },
+          {
+            "value": "Current liabilities"
+          },
+          {
+            "value": "Current Liabilities"
+          },
+          {
+            "value": "Pay-As-You-Go instalments paid regularly to the ATO"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Payroll clearing"
+          },
+          {
+            "value": "Current liabilities"
+          },
+          {
+            "value": "Payroll liabilities"
+          },
+          {
+            "value": "An account used to deposit, record and monitor payrolls. No funds remain once all cheques clear"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Superannuation - staff"
+          },
+          {
+            "value": "Current liabilities"
+          },
+          {
+            "value": "Payroll liabilities"
+          },
+          {
+            "value": "Superannuation expenses"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Superannuation payable"
+          },
+          {
+            "value": "Current liabilities"
+          },
+          {
+            "value": "Payroll liabilities"
+          },
+          {
+            "value": "The amount of superannuation to be paid business to the superannuation fund(s) of employees"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Loan"
+          },
+          {
+            "value": "Non-current liabilities"
+          },
+          {
+            "value": "Long term borrowings"
+          },
+          {
+            "value": "Money borrowed for business purposes"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Opening balance equity"
+          },
+          {
+            "value": "Owner's equity"
+          },
+          {
+            "value": "Opening Balance Equity"
+          },
+          {
+            "value": "Offsetting entry used when entering account balances in QuickBooks Online"
+          },
+          {
+            "value": "92334.00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Owners drawings"
+          },
+          {
+            "value": "Owner's equity"
+          },
+          {
+            "value": "Owner's Equity"
+          },
+          {
+            "value": "Withdrawals from a company account to pay an owner"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Retained Earnings"
+          },
+          {
+            "value": "Owner's equity"
+          },
+          {
+            "value": "Retained Earnings"
+          },
+          {
+            "value": "Net earnings not paid out as dividends, but retained by the company to be reinvested"
+          },
+          {
+            "value": ".00"
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Billable Expense Income"
+          },
+          {
+            "value": "Income"
+          },
+          {
+            "value": "Sales of Product Income"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Sales"
+          },
+          {
+            "value": "Income"
+          },
+          {
+            "value": "Sales of Product Income"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Sales of Product Income"
+          },
+          {
+            "value": "Income"
+          },
+          {
+            "value": "Sales of Product Income"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Unapplied Cash Payment Income"
+          },
+          {
+            "value": "Income"
+          },
+          {
+            "value": "Unapplied Cash Payment Income"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Uncategorised Income"
+          },
+          {
+            "value": "Income"
+          },
+          {
+            "value": "Sales of Product Income"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "COGS"
+          },
+          {
+            "value": "Cost of sales"
+          },
+          {
+            "value": "Cost of Sales"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Cost of sales"
+          },
+          {
+            "value": "Cost of sales"
+          },
+          {
+            "value": "Supplies and materials - COS"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Freight & Delivery - COS"
+          },
+          {
+            "value": "Cost of sales"
+          },
+          {
+            "value": "Shipping, Freight and Delivery - COS"
+          },
+          {
+            "value": "Freight & Delivery - COS"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Accounting and bookkeeping"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Legal and professional fees"
+          },
+          {
+            "value": "Professional fees charged to your business by an accountant or bookkeeper"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Advertising and marketing"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Advertising/Promotional"
+          },
+          {
+            "value": "Fees and charges incurred by your business for advertising the goods and services it sells"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Bank charges and fees"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Bank charges"
+          },
+          {
+            "value": "Fees charged by your bank for providing its services to your business"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Contractor Expenses (non salary)"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "External services"
+          },
+          {
+            "value": "Monies paid to a contractor (not an employee) for work they've completed"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Fuel & oils"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Auto"
+          },
+          {
+            "value": "Cost of fuels and oils required for operating your business vehicles"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Gas and electricity"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Utilities"
+          },
+          {
+            "value": "Expenses incurred for utilities such as lighting, powering or heating business premises"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Gifts and donations"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Charitable Contributions"
+          },
+          {
+            "value": "Money and gifts donated to charity"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "haha"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Advertising/Promotional"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Insurance"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Insurance"
+          },
+          {
+            "value": "Expenses incurred to insure business assets"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Interest expense"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Interest paid"
+          },
+          {
+            "value": "Interest payable on borrowings"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Meals and entertainment"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Meals and entertainment"
+          },
+          {
+            "value": "Expenses incurred when traveling for business purposes or entertaining a business client"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Motor vehicle expenses"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Auto"
+          },
+          {
+            "value": "Expenses incurred running company vehicles"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Office expenses"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Office/General Administrative Expenses"
+          },
+          {
+            "value": "Costs to maintain office space and equipment"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Postage & shipping"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Office/General Administrative Expenses"
+          },
+          {
+            "value": "Cost of postage and shipping related to your business operations"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Printing, stationery & supplies"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Office/General Administrative Expenses"
+          },
+          {
+            "value": "Cost of printing, stationery and supplies for office use"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Purchases"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Supplies and materials"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Registration and insurance"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Auto"
+          },
+          {
+            "value": "Registration and insurance costs for company vehicles"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Repairs and maintenance"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Repair and maintenance"
+          },
+          {
+            "value": "Expenses incurred repairing or maintaining business assets e.g. office equipment"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Salary and wages - staff"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Payroll Expenses"
+          },
+          {
+            "value": "Salaries and wages paid to employees"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Shipping, Freight, and Delivery Postage & Handling"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Shipping, Freight, and Delivery"
+          },
+          {
+            "value": "Shipping, Freight, and Delivery Postage & Handling"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Staff amenities"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Office/General Administrative Expenses"
+          },
+          {
+            "value": "Staff refreshments e.g. tea, coffee and biscults"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Subscriptions"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Dues and Subscriptions"
+          },
+          {
+            "value": "Subscriptions to publications, professional memberships or products such as cloud software"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Telephone & internet expenses"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Utilities"
+          },
+          {
+            "value": "Phone calls and internet expenses associated with operating your business"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Travel expenses"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Travel"
+          },
+          {
+            "value": "Expenses incurred when travelling for business"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Uncategorised Expense"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Other Miscellaneous Service Cost"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Workcover expenses"
+          },
+          {
+            "value": "Expenses"
+          },
+          {
+            "value": "Payroll Expenses"
+          },
+          {
+            "value": "Workcover is a compulsory and protects employees if injured on the job"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      },
+      {
+        "ColData": [
+          {
+            "value": "Interest income"
+          },
+          {
+            "value": "Other income"
+          },
+          {
+            "value": "Interest earned"
+          },
+          {
+            "value": "Interest earned from savings accounts, deposits or other investments"
+          },
+          {
+            "value": ""
+          }
+        ],
+        "type": "Data"
+      }
+    ]
+  }
+}

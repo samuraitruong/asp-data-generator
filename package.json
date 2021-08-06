@@ -1,0 +1,37 @@
+{
+  "name": "asp-data-generator",
+  "version": "1.0.0",
+  "description": "The simple script to generate asp data for testing purpose",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "faker": "^5.5.3",
+    "intuit-oauth": "^4.0.0",
+    "moment": "^2.29.1",
+    "tiny-async-pool": "^1.2.0",
+    "unique-names-generator": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.12",
+    "dotenv": "^10.0.0",
+    "ts-node": "^10.1.0",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.3.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuraitruong/asp-data-generator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samuraitruong/asp-data-generator/issues"
+  },
+  "homepage": "https://github.com/samuraitruong/asp-data-generator#readme"
+}
