@@ -8,35 +8,36 @@ export const INTUIT_ACCOUNT_ENUMS = {
     "Savings",
     "TrustAccounts",
     "CashAndCashEquivalents",
-    "OtherEarMarkedBankAccounts"],
+    "OtherEarMarkedBankAccounts",
+  ],
   "Other Current Asset": [
-    "AllowanceForBadDebts"
-    , "DevelopmentCosts"
-    , "EmployeeCashAdvances"
-    , "OtherCurrentAssets"
-    , "Inventory"
-    , "Investment_MortgageRealEstateLoans"
-    , "Investment_Other"
-    , "Investment_TaxExemptSecurities"
-    , "Investment_USGovernmentObligations"
-    , "LoansToOfficers"
-    , "LoansToOthers"
-    , "LoansToStockholders"
-    , "PrepaidExpenses"
-    , "Retainage"
-    , "UndepositedFunds"
-    , "AssetsAvailableForSale"
-    , "BalWithGovtAuthorities"
-    , "CalledUpShareCapitalNotPaid"
-    , "ExpenditureAuthorisationsAndLettersOfCredit"
-    , "GlobalTaxDeferred"
-    , "GlobalTaxRefund"
-    , "InternalTransfers"
-    , "OtherConsumables"
-    , "ProvisionsCurrentAssets"
-    , "ShortTermInvestmentsInRelatedParties"
-    , "ShortTermLoansAndAdvancesToRelatedParties"
-    , "TradeAndOtherReceivables"
+    "AllowanceForBadDebts",
+    "DevelopmentCosts",
+    "EmployeeCashAdvances",
+    "OtherCurrentAssets",
+    "Inventory",
+    "Investment_MortgageRealEstateLoans",
+    "Investment_Other",
+    "Investment_TaxExemptSecurities",
+    "Investment_USGovernmentObligations",
+    "LoansToOfficers",
+    "LoansToOthers",
+    "LoansToStockholders",
+    "PrepaidExpenses",
+    "Retainage",
+    "UndepositedFunds",
+    "AssetsAvailableForSale",
+    "BalWithGovtAuthorities",
+    "CalledUpShareCapitalNotPaid",
+    "ExpenditureAuthorisationsAndLettersOfCredit",
+    "GlobalTaxDeferred",
+    "GlobalTaxRefund",
+    "InternalTransfers",
+    "OtherConsumables",
+    "ProvisionsCurrentAssets",
+    "ShortTermInvestmentsInRelatedParties",
+    "ShortTermLoansAndAdvancesToRelatedParties",
+    "TradeAndOtherReceivables",
   ],
   "Fixed Asset": [
     "AccumulatedDepletion",
@@ -89,7 +90,7 @@ export const INTUIT_ACCOUNT_ENUMS = {
     "ProvisionsNonCurrentAssets",
   ],
   "Accounts Receivable": ["Accounts Receivable"],
-  "Equity": [
+  Equity: [
     "OpeningBalanceEquity",
     "PartnersEquity",
     "RetainedEarnings",
@@ -118,7 +119,7 @@ export const INTUIT_ACCOUNT_ENUMS = {
     "ShareCapital",
     "Funds",
   ],
-  "Expense": [
+  Expense: [
     "OpeningBalanceEquity",
     "PartnersEquity",
     "RetainedEarnings",
@@ -222,12 +223,9 @@ export const INTUIT_ACCOUNT_ENUMS = {
   "Accounts Payable": [
     "Accounts Payable",
     "OutstandingDuesMicroSmallEnterprise",
-    "OutstandingDuesOtherThanMicroSmallEnterprise"
-  ]
-  ,
-  "Credit Card": [
-    "Credit Card"
+    "OutstandingDuesOtherThanMicroSmallEnterprise",
   ],
+  "Credit Card": ["Credit Card"],
   "Long Term Liability": [
     "NotesPayable",
     "OtherLongTermLiabilities",
@@ -282,7 +280,7 @@ export const INTUIT_ACCOUNT_ENUMS = {
     "SundryDebtorsAndCreditors",
     "TradeAndOtherPayables",
   ],
-  "Income": [
+  Income: [
     "NonProfitIncome",
     "OtherPrimaryIncome",
     "SalesOfProductIncome",
@@ -309,5 +307,14 @@ export const INTUIT_ACCOUNT_ENUMS = {
     "LossOnDisposalOfAssets",
     "OtherOperatingIncome",
     "UnrealisedLossOnSecuritiesNetOfTax",
-  ]
-}
+  ],
+};
+
+export const FLAT_ACCOUNT_LIST = Object.entries(INTUIT_ACCOUNT_ENUMS)
+  .map(([type, values]) => values.map((v) => [type, v]))
+  .flat();
+
+export const XERO_SCOPES =
+  "offline_access,accounting.transactions,accounting.transactions.read,accounting.journals.read,accounting.settings,accounting.contacts,accounting.reports.read,assets".split(
+    ","
+  );

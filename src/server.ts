@@ -1,59 +1,85 @@
 import * as dotenv from "dotenv";
-import * as fs from 'fs';
-import OAuthClient from 'intuit-oauth'
+import * as fs from "fs";
+import OAuthClient from "intuit-oauth";
+import { XeroClient } from "xero-node";
+import * as https from "https";
+import express from "express";
+import { XERO_SCOPES } from "./constants";
 
 dotenv.config();
-let token;
 
+const xeroClient = new XeroClient({
+  clientId: process.env.XERO_CLIENT_ID || "",
+  clientSecret: process.env.XERO_CLIENT_SECRET || "",
+  redirectUris: [
+    process.env.XERO_REDIRECT_URL ||
+      "https://local.aspgenerator.com:3443/oauth/xero",
+  ],
+  scopes: XERO_SCOPES,
+  // state: 'returnPage=my-sweet-dashboard', // custom params (optional)
+  httpTimeout: 3000, // ms (optional)
+});
 
 const oauthClient = new OAuthClient({
   clientId: process.env.INTUIT_CLIENT_ID,
   clientSecret: process.env.INTUIT_CLIENT_SECRET,
-  environment: 'production',
+  environment: "production",
   redirectUri: process.env.REDIRECT_URL,
 });
 
-var https = require('https');
-var privateKey = fs.readFileSync('certs/server.key', 'utf8');
-var certificate = fs.readFileSync('certs/server.crt', 'utf8');
-
-
-import express from "express";
-
+const privateKey = fs.readFileSync("certs/server.key", "utf8");
+const certificate = fs.readFileSync("certs/server.crt", "utf8");
 
 const app = express();
 
-app.use('/oauth', async (req, res) => {
+app.get("/oauth/intuit", async (req, res) => {
   const parseRedirect = req.url;
 
   try {
     // Exchange the auth code retrieved from the **req.url** on the redirectUri
-    const authResponse = await oauthClient
-      .createToken(parseRedirect)
-
-    token = authResponse.token;
+    const authResponse = await oauthClient.createToken(parseRedirect);
 
     fs.writeFileSync("intuit.json", JSON.stringify(authResponse, null, 4));
 
-    res.json(authResponse)
-  }
-  catch (err) {
-    res.json(err)
+    res.json(authResponse);
+  } catch (err) {
+    res.json(err);
   }
 });
+app.get("/ping", (req, res) => {
+  res.send("Pong");
+});
 
-app.use("/connect", (req, res) => {
-  console.log(req.query);
+app.get("/connect/intuit", (req, res) => {
   const authUri = oauthClient.authorizeUri({
     scope: [OAuthClient.scopes.Accounting, OAuthClient.scopes.OpenId],
-    state: 'testState',
+    state: "testState",
   }); // can be an array of multiple scopes ex : {scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId]}
 
   // Redirect the authUri
   res.redirect(authUri);
+});
 
-})
+app.get("/connect/xero", async (req, res) => {
+  const consentUrl = await xeroClient.buildConsentUrl();
+  res.redirect(consentUrl);
+});
 
-var httpsServer = https.createServer({ key: privateKey, cert: certificate }, app);
+app.get("/oauth/xero", async (req, res) => {
+  try {
+    const tokenSet = await xeroClient.apiCallback(req.url);
+    fs.writeFileSync("xero.json", JSON.stringify(tokenSet, null, 4));
+    res.json(tokenSet);
+  } catch (err) {
+    res.json(err);
+  }
+});
 
-httpsServer.listen(3443)
+const httpsServer = https.createServer(
+  { key: privateKey, cert: certificate },
+  app
+);
+
+httpsServer.listen(3443, () => {
+  console.log("server started at 3443 port");
+});
