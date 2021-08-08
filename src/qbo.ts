@@ -22,12 +22,13 @@ dotenv.config();
   try {
     const intuit = new Intuit(oauthClient);
     await intuit.fetchCommonEntities();
-    if (false) {
-      await asyncPool(10, Array(1), async () => intuit.createVendorCredit());
-      return;
-    }
+    // if (false) {
+    //   await asyncPool(10, Array(1), async () => intuit.createVendorCredit());
+    //   return;
+    // }
 
     let index = 0;
+
     asyncPool(10, Array(1000), async () => {
       intuit.createCreditMemo();
       await intuit.createJournalEntry();

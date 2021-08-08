@@ -4,6 +4,7 @@ The simple script to generate asp data for testing purpose
 
 ## .env
 
+```
 INTUIT_CLIENT_ID={INTUIT_CLIENT_ID}
 INTUIT_CLIENT_SECRET={INTUIT_CLIENT_SECRET}
 REDIRECT_URL=https://local.aspgenerator.com:3443/oauth/intuit
@@ -12,11 +13,12 @@ XERO_CLIENT_ID={XERO_CLIENT_ID}
 XERO_CLIENT_SECRET={XERO_CLIENT_SECRET}
 XERO_REDIRECT_URL=https://local.aspgenerator.com:3443/oauth/xero
 
+```
+
 ## Connect the asp org
 
-```
+```sh
 run yarn server
-
 ```
 
 ### QBO
