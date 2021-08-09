@@ -4,12 +4,21 @@ import * as fs from "fs";
 import OAuthClient from "intuit-oauth";
 import { Intuit } from "./asp/intuit";
 import asyncPool from "tiny-async-pool";
+import yargs from "yargs";
+
+const argv = yargs(process.argv).options({
+  entity: { type: "string", demandOption: true, default: "*" },
+  count: { type: "number", default: 10 },
+  mode: { choices: ["live", "cache"], default: "live" },
+}).argv;
 
 const token = JSON.parse(fs.readFileSync("intuit.json", "utf8")).token;
 
 dotenv.config();
 
 (async () => {
+  const options = await argv;
+
   const oauthClient = new OAuthClient({
     clientId: process.env.INTUIT_CLIENT_ID,
     clientSecret: process.env.INTUIT_CLIENT_SECRET,
@@ -21,11 +30,13 @@ dotenv.config();
 
   try {
     const intuit = new Intuit(oauthClient);
-    await intuit.fetchCommonEntities();
-    // if (false) {
-    //   await asyncPool(10, Array(1), async () => intuit.createVendorCredit());
-    //   return;
-    // }
+    await intuit.fetchCommonEntities(options.mode);
+    if (options.entity !== "*") {
+      await asyncPool(10, Array(options.count), async () =>
+        intuit[`create${options.entity}`]()
+      );
+      return;
+    }
 
     let index = 0;
 
@@ -36,7 +47,7 @@ dotenv.config();
       await intuit.createInvoice();
       await intuit.makePayment();
       await intuit.createSaleReciept();
-      await intuit.createPurcharseOrder();
+      await intuit.createPurchaseOrder();
       await intuit.createBill();
       await intuit.createCreditCardPayment();
       await intuit.createVendorCredit();
@@ -45,5 +56,4 @@ dotenv.config();
   } catch (err) {
     console.log("Got error", err);
   }
-  // console.log(JSON.parse(data.body))
 })();

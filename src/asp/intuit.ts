@@ -1,12 +1,13 @@
 import faker from "faker";
 import moment from "moment";
 import asyncPool from "tiny-async-pool";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import { INTUIT_ACCOUNT_ENUMS, FLAT_ACCOUNT_LIST } from "../constants";
+import chalk from "chalk";
 
 export class Intuit {
   readonly apiUrl;
-
+  mode = "live";
   _customers: any[] = [];
 
   _accounts: any[] = [];
@@ -18,15 +19,14 @@ export class Intuit {
   _vendors: any[] = [];
 
   constructor(private client) {
-    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${
-      client.getToken().realmId
-    }`;
+    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${client.getToken().realmId
+      }`;
   }
 
-  async fetchCommonEntities() {
+  async fetchCommonEntities(mode: string) {
+    this.mode = mode;
     this._customers = await this.customers();
     this._accounts = await this.accounts();
-    console.log(this._accounts.length);
     this._accountList = await this.accountList();
     this._items = await this.items();
     this._vendors = await this.vendors();
@@ -43,9 +43,10 @@ export class Intuit {
     });
   }
 
-  private async post(url, model) {
+  private async post(url, model, retry = 1) {
+    let postRes;
     try {
-      const postRes = await this.client.makeApiCall({
+      postRes = await this.client.makeApiCall({
         url: `${this.apiUrl + url}?minorversion=59`,
         method: "POST",
         headers: {
@@ -62,10 +63,19 @@ export class Intuit {
       );
       return postRes.json;
     } catch (err) {
-      console.log(url, model);
       fs.writeFileSync(`./logs${url}.json`, JSON.stringify(model, null, 4));
+      if (
+        retry < 4 &&
+        err.authResponse.response.body.includes(
+          "An unexpected error occurred while accessing or saving your data. Please wait a few minutes and try again"
+        )
+      ) {
+        console.log(chalk.red("server error, retrying ...."), retry);
+        return await this.post(url, model, retry + 1);
+      }
 
-      console.log(url, err.authResponse.json.Fault);
+      console.log(url, model);
+      console.error(url, err.authResponse.json.Fault);
     }
   }
 
@@ -192,9 +202,21 @@ export class Intuit {
     return this.post("/customer", model);
   }
 
-  any(items: any[]) {
-    const index = Math.floor(Math.random() * items.length);
-    return items[index];
+  any(items: any[], requiredFields?: string[]) {
+    const filtered = items.filter(Boolean);
+    while (true) {
+      const index = Math.floor(Math.random() * filtered.length);
+      const item = filtered[index];
+      if (!requiredFields) return item;
+
+      if (requiredFields && requiredFields.length === 0) return item;
+      if (
+        requiredFields &&
+        requiredFields.map((x) => item[x]).filter(Boolean).length ===
+        requiredFields.length
+      )
+        return item;
+    }
   }
 
   async rndAccount(type = "") {
@@ -293,7 +315,7 @@ export class Intuit {
   }
 
   rndDate() {
-    const date = Math.floor(Math.random() * 730);
+    const date = Math.floor(Math.random() * 761);
     return moment().subtract(date, "days").format("YYYY-MM-DD");
   }
 
@@ -327,7 +349,7 @@ export class Intuit {
     const price = this.rndAmount(100);
     const model = {
       TrackQtyOnHand: type === "Inventory",
-      Name: faker.commerce.productName(),
+      Name: faker.commerce.productName() + " - " + this.docNum(),
       QtyOnHand: 10,
       UnitPrice: price,
       PurchaseCost: price * 0.75,
@@ -383,9 +405,10 @@ export class Intuit {
       AccountSubType = subType;
     }
     const AcctNum = this.docNum();
+    const subName = (AccountSubType || "").replace(/([A-Z])/g, " $1").trim();
     const model = {
       AcctNum,
-      Name: `${AccountType} - ${AccountSubType || ""} #${AcctNum}`,
+      Name: `${AccountType} - ${subName} #${AcctNum}`,
       AccountType,
       AccountSubType,
     };
@@ -430,30 +453,45 @@ export class Intuit {
     return this.post("/vendor", model);
   }
 
-  async query(query) {
-    const res = await this.client.makeApiCall({
-      url: `${this.apiUrl}/query?query=${query} MaxResults 1000&minorversion=59`,
-    });
-    const data = Object.values(res.json.QueryResponse)[0] as any[];
-    console.log(query, data.length);
+  async query(query: string) {
+    let data = [];
+    let page;
+    let index = 0;
+    const entityName = query.split(" ").pop();
+
+    if (this.mode === "cache") {
+      if (fs.existsSync("./data/intuit/" + entityName + ".json")) {
+        const cached = fs.readJSONSync("./data/intuit/" + entityName + ".json");
+        console.log("Read from cache %s ===> %d", entityName, cached.length);
+        return cached;
+      }
+    }
+    do {
+      const res = await this.client.makeApiCall({
+        url: `${this.apiUrl}/query?query=${query} STARTPOSITION ${index} MaxResults 1000&minorversion=59`,
+      });
+
+      page = Object.values(res.json.QueryResponse)[0] as any[];
+
+      data = [...data, ...page];
+      index += page.length;
+    } while (page.length === 1000);
+    console.log(query + " ===> ", data.length);
+    if (data && data.length > 0) {
+      fs.mkdirpSync("./data/intuit/");
+      fs.writeJsonSync("./data/intuit/" + entityName + ".json", data, {
+        spaces: 4,
+      });
+    }
     return data;
   }
 
   async items() {
     return this.query("select * from Item");
-    // const res = await this.client.makeApiCall({
-    //   url: this.apiUrl + "/query?query=select * from Item&minorversion=59"
-    // })
-    // return res.json.QueryResponse.Item
   }
 
   async vendors() {
     return this.query("select * from Vendor");
-
-    // const res = await this.client.makeApiCall({
-    //   url: this.apiUrl + "/query?query=select * from Vendor&minorversion=59"
-    // })
-    // return res.json.QueryResponse.Vendor
   }
 
   async accounts() {
@@ -486,12 +524,6 @@ export class Intuit {
 
   async customers() {
     return this.query("select * from Customer");
-
-    // const res = await this.client.makeApiCall({
-    //   url: this.apiUrl + "/query?query=select * from Customer&minorversion=59"
-    // })
-
-    // return res.json.QueryResponse.Customer
   }
 
   ranItems(arr, maxItems) {
@@ -620,9 +652,10 @@ export class Intuit {
     return this.post("/salesreceipt", model);
   }
 
-  async createPurcharseOrder() {
+  async createPurchaseOrder() {
     const items = this.ranItems(this._items, 5);
-    const cus = this.any(this._customers);
+
+    const cus = this.any(this._customers, ["Id"]);
     const vendor = this.any(this._vendors);
     let apAcc = await this.rndAccount("Accounts Payable");
     if (!apAcc) {
@@ -667,8 +700,8 @@ export class Intuit {
         value: vendor.Id,
       },
       ShipTo: {
-        name: cus.Name,
-        value: cus.id,
+        // name: cus.Name,
+        value: cus.Id,
       },
     };
     model.TotalAmt = total;
