@@ -45,13 +45,10 @@ export class Myob extends Base {
     return this.anyUID(filtering);
   }
 
-  ranAccount(type?: string, level?: number, header?: boolean) {
+  randAccount(type?: string, level?: number, header?: boolean) {
     // console.log(type, level, header);
     const filtering = this.accounts
-      .filter(
-        (x: any) =>
-          type === undefined || x.Type.includes(type) || x.Name.includes(type)
-      )
+      .filter((x: any) => type === undefined || x.Type === type)
       .filter((x: any) => !level || x.Level === level)
       .filter((x: any) => x.IsHeader === header);
 
@@ -202,10 +199,10 @@ export class Myob extends Base {
       IsActive: true,
       Description: faker.lorem.sentence(),
       IncomeAccount: {
-        UID: this.ranAccount("Income", undefined, false).UID,
+        UID: this.randAccount("Income", undefined, false).UID,
       },
       ExpenseAccount: {
-        UID: this.ranAccount("Expense", undefined, false).UID,
+        UID: this.randAccount("Expense", undefined, false).UID,
       },
       BuyingDetails: {
         TaxCode: this.anyUID(this.taxCodes),
@@ -300,7 +297,7 @@ export class Myob extends Base {
         FreightTaxCode: {
           UID: this.any(this.taxCodes).UID,
         },
-        ExpenseAccount: this.ranAccount("Expense"),
+        ExpenseAccount: this.randAccount("Expense"),
       },
     };
     return this.post("Contact/Supplier", model, "DisplayID");
@@ -330,7 +327,7 @@ export class Myob extends Base {
       Lines: [
         {
           Account: {
-            UID: this.ranAccount("AccountsPayable", undefined, false).UID,
+            UID: this.randAccount("AccountsPayable", undefined, false).UID,
           },
           // Job: job,
           Memo: faker.lorem.sentence(),
@@ -342,7 +339,7 @@ export class Myob extends Base {
         },
         {
           Account: {
-            UID: this.ranAccount("AccountsReceivable", undefined, false).UID,
+            UID: this.randAccount("AccountsReceivable", undefined, false).UID,
           },
           //  Job: job,
           Memo: faker.lorem.sentence(),
@@ -356,6 +353,7 @@ export class Myob extends Base {
     };
     return this.post("GeneralLedger/GeneralJournal", model, "UID");
   }
+
   async createAccount() {
     const accountMapping = {
       Asset: [
@@ -367,7 +365,7 @@ export class Myob extends Base {
       ],
       Liability: [
         "CreditCard",
-        "AccountPayable",
+        "AccountsPayable",
         "OtherCurrentLiability",
         "LongTermLiability",
         "OtherLiability",
@@ -376,25 +374,28 @@ export class Myob extends Base {
       Income: ["Income"],
       CostOfSales: ["CostOfSales"],
       Expense: ["Expense"],
-      OtherIncome: "OtherIncome",
+      OtherIncome: ["OtherIncome"],
       OtherExpense: ["OtherExpense"],
     };
 
     const Classification = this.any(Object.keys(accountMapping));
+    const Type = this.any(accountMapping[Classification]);
     const IsHeader = Math.random() < 0.2;
     let ParentAccount = undefined;
 
     if (!IsHeader || IsHeader) {
-      ParentAccount = {
-        UID: this.ranAccount(Classification, this.any([1, 2, 3]), true).UID,
-      };
+      ParentAccount = this.randAccount(
+        Classification,
+        this.any([1, 2, 3]),
+        true
+      );
     }
 
     const model = {
-      Name: faker.finance.accountName(),
+      Name: Type + " - " + faker.finance.accountName(),
       DisplayID: this.uniqueNumber(),
       Classification,
-      Type: this.any(accountMapping[Classification]),
+      Type,
       //Number: 9901,
       Description: faker.lorem.sentence(),
       IsActive: true,
@@ -403,7 +404,7 @@ export class Myob extends Base {
       ParentAccount,
     };
     // console.log(model);
-    return this.post("GeneralLedger/Account", model, "UID");
+    return this.post("GeneralLedger/Account", model, "DisplayID");
   }
   async createSaleCustomerPayment() {
     // need to query the customer invoice and place the payment.
@@ -412,7 +413,7 @@ export class Myob extends Base {
 
     const model = {
       PayFrom: "Account",
-      Account: { UID: this.ranAccount("Bank", undefined, false).UID },
+      Account: { UID: this.randAccount("Bank", undefined, false).UID },
       Customer: invoice.Customer,
       PayeeAddress: faker.address.streetAddress(),
       StatementParticulars: "",
@@ -437,6 +438,12 @@ export class Myob extends Base {
   async createSaleInvoiceItem() {
     const item = this.any(this.items.filter((x: any) => x.IsSold));
     const unit = Math.ceil(Math.random() * 20);
+    const allowAccountType = this.any([
+      "Income",
+      "CostOfSales",
+      "OtherIncome",
+      "Expense",
+    ]);
     const model = {
       Number: this.uniqueNumber(),
       Date: this.rndDate(),
@@ -462,13 +469,16 @@ export class Myob extends Base {
           BillQuantity: item.SellingDetails.BaseSellingPrice,
           ReceivedQuantity: item.SellingDetails.BaseSellingPrice,
           BackorderQuantity: 0,
-          Account: { UID: this.ranAccount("Income", undefined, false).UID },
+          Account: {
+            UID: this.randAccount(allowAccountType, undefined, false).UID,
+          },
           Total: this.safeNum(item.SellingDetails.BaseSellingPrice * unit),
           UnitPrice: item.SellingDetails.BaseSellingPrice,
           Job: null,
           DiscountPercent: 0,
           TaxCode: this.randTax("GST_VAT"),
           Item: { UID: item.UID },
+          CostOfGoodsSold: 1,
         },
       ],
       Subtotal: this.safeNum(item.SellingDetails.BaseSellingPrice * unit),
@@ -495,6 +505,78 @@ export class Myob extends Base {
     };
     return this.post("Sale/Invoice/Item", model, "Number");
   }
+
+  async createSaleInvoiceService() {
+    const item = this.any(this.items.filter((x: any) => x.IsSold));
+    const unit = Math.ceil(Math.random() * 20);
+    const allowAccountType = this.any([
+      "Income",
+      "CostOfSales",
+      "OtherIncome",
+      "Expense",
+    ]);
+    const model = {
+      Number: this.uniqueNumber(),
+      Date: this.rndDate(),
+      SupplierInvoiceNumber: null,
+      Customer: this.anyUID(this.customers),
+      ShipToAddress: faker.address.streetAddress(),
+      Terms: {
+        PaymentIsDue: "DayOfMonthAfterEOM",
+        DiscountDate: 1,
+        BalanceDueDate: 30,
+        DiscountForEarlyPayment: 0,
+        MonthlyChargeForLatePayment: 0,
+        DiscountExpiryDate: this.rndDate(),
+        Discount: 0,
+        DueDate: this.rndDate(),
+      },
+      IsTaxInclusive: false,
+      IsReportable: false,
+      Lines: [
+        {
+          Type: "Transaction",
+          Description: faker.lorem.sentence(),
+          BillQuantity: unit,
+          ReceivedQuantity: unit,
+          BackorderQuantity: 0,
+          Account: {
+            UID: this.randAccount(allowAccountType, undefined, false).UID,
+          },
+          Total: this.safeNum(item.SellingDetails.BaseSellingPrice * unit),
+          UnitPrice: item.SellingDetails.BaseSellingPrice,
+          Job: null,
+          DiscountPercent: 0,
+          TaxCode: this.randTax("GST_VAT"),
+          Item: { UID: item.UID },
+          CostOfGoodsSold: 1,
+        },
+      ],
+      Subtotal: this.safeNum(item.SellingDetails.BaseSellingPrice * unit),
+      Freight: 0,
+      FreightTaxCode: this.randTax("GST_VAT"),
+      TotalTax: this.safeNum(item.SellingDetails.BaseSellingPrice * unit * 0.1),
+      TotalAmount: this.safeNum(
+        item.SellingDetails.BaseSellingPrice * unit * 1.1
+      ),
+      Category: null,
+      Comment: faker.lorem.sentence(),
+      ShippingMethod: null,
+      PromisedDate: null,
+      JournalMemo: faker.lorem.sentence(),
+      BillDeliveryStatus: "Print",
+      AppliedToDate: 0,
+      BalanceDueAmount: this.safeNum(
+        item.SellingDetails.BaseSellingPrice * unit * 1.1
+      ),
+      Status: "Open",
+      LastPaymentDate: null,
+      Order: null,
+      ForeignCurrency: null,
+    };
+    return this.post("Sale/Invoice/Service", model, "Number");
+  }
+
   private getPurchaseModel() {
     const item = this.any(this.items.filter((x: any) => x.IsBought));
     const unit = Math.ceil(Math.random() * 20);
@@ -572,7 +654,7 @@ export class Myob extends Base {
 
     const model = {
       PayFrom: "Account",
-      Account: this.ranAccount("Bank", undefined, false),
+      Account: this.randAccount("Bank", undefined, false),
       Supplier: po.Supplier,
       PayeeAddress: faker.address.streetAddress(),
       StatementParticulars: "",
@@ -593,5 +675,84 @@ export class Myob extends Base {
       ForeignCurrency: null,
     };
     return this.post("Purchase/SupplierPayment", model, "PaymentNumber");
+  }
+  async createBankingRecieveMoney() {
+    const allowAccounts = ["Bank", "CreditCard"];
+    const recievedAccount = [
+      "Income",
+      "OtherIncome",
+      "Expense",
+      "CostOfSales",
+      "OtherExpense",
+    ];
+    const model = {
+      DepositTo: "Account",
+      Account: {
+        UID: this.randAccount(this.any(allowAccounts), undefined, false).UID,
+      },
+      Contact: this.any(this.suppliers),
+      PayeeAddress: faker.address.streetAddress(),
+      StatementParticulars: "",
+      PaymentNumber: this.uniqueNumber(),
+      Date: this.rndDate(),
+      AmountPaid: this.rndAmount(),
+      IsTaxInclusive: true,
+      TotalTax: 9.1,
+      Memo: faker.finance.transactionDescription(),
+      Lines: [
+        {
+          Account: {
+            UID: this.randAccount(this.any(recievedAccount), undefined, false)
+              .UID,
+          },
+          Job: null,
+          TaxCode: this.randTax("GST"),
+          Amount: this.rndAmount(),
+          Memo: faker.lorem.sentence(),
+        },
+      ],
+      ChequePrinted: false,
+      DeliveryStatus: "Print",
+      // Category: {
+      //   UID: "315ad93c-bf0a-4e9f-9804-8bed8dd8805f",
+      // },
+      ForeignCurrency: null,
+    };
+    return this.post("Banking/ReceiveMoneyTxn", model, "PaymentNumber");
+  }
+  async createBankingSpendMoney() {
+    const model = {
+      PayFrom: "Account",
+      Account: {
+        UID: this.randAccount("Bank", undefined, false).UID,
+      },
+      Contact: this.any(this.suppliers),
+      PayeeAddress: faker.address.streetAddress(),
+      StatementParticulars: "",
+      PaymentNumber: this.uniqueNumber(),
+      Date: this.rndDate(),
+      AmountPaid: this.rndAmount(),
+      IsTaxInclusive: true,
+      TotalTax: 9.1,
+      Memo: faker.finance.transactionDescription(),
+      Lines: [
+        {
+          Account: {
+            UID: this.randAccount("Bank", undefined, false).UID,
+          },
+          Job: null,
+          TaxCode: this.randTax("GST"),
+          Amount: this.rndAmount(),
+          Memo: faker.lorem.sentence(),
+        },
+      ],
+      ChequePrinted: false,
+      DeliveryStatus: "Print",
+      // Category: {
+      //   UID: "315ad93c-bf0a-4e9f-9804-8bed8dd8805f",
+      // },
+      ForeignCurrency: null,
+    };
+    return this.post("Banking/SpendMoneyTxn", model, "PaymentNumber");
   }
 }

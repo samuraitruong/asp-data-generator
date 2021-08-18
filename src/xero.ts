@@ -3,6 +3,7 @@ import chalk from "chalk";
 import * as fs from "fs";
 import asyncPool from "tiny-async-pool";
 import { Xero } from "./asp/xero";
+import { getOptions } from "./cli";
 
 const tokenSet = JSON.parse(fs.readFileSync("xero.json", "utf8"));
 
@@ -10,13 +11,24 @@ dotenv.config();
 
 (async () => {
   const xero = new Xero(tokenSet);
-
+  const options = await getOptions(Xero);
   try {
     await xero.refreshToken();
     await xero.fetchCommonEntities();
 
-    if (true) {
-      await asyncPool(5, Array(1), async () => xero.createFixedAsset());
+    if (options.entity !== "*") {
+      const results = await asyncPool(5, Array(options.count), async () => {
+        try {
+          return await xero[`create${options.entity}`]();
+        } catch (err) {
+          //swallow
+        }
+      });
+      console.log(
+        "Items created: %d",
+        results.filter(Boolean).length,
+        results.filter(Boolean)
+      );
       return;
     }
 
