@@ -324,11 +324,11 @@ export class Intuit {
     return +(Math.random() * max).toFixed(2);
   }
 
-  async makePayment() {
+  async createPayment() {
     const customer = this.any(this._customers);
     const model = {
       TxnDate: this.rndDate(),
-      TotalAmt: this.rndAmount(),
+      TotalAmt: this.rndAmount(10000),
       CustomerRef: {
         value: customer.Id,
       },
@@ -416,7 +416,7 @@ export class Intuit {
   }
 
   async createVendor() {
-    const companyName = faker.company.companyName();
+    const companyName = faker.company.companyName() + " " + this.docNum();
     const model = {
       PrimaryEmailAddr: {
         Address: faker.internet.email(),

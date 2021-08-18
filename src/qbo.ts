@@ -45,7 +45,7 @@ dotenv.config();
       await intuit.createJournalEntry();
       await intuit.createPurchase();
       await intuit.createInvoice();
-      await intuit.makePayment();
+      await intuit.createPayment();
       await intuit.createSaleReciept();
       await intuit.createPurchaseOrder();
       await intuit.createBill();
