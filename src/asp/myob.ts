@@ -131,7 +131,8 @@ export class Myob extends Base {
   }
 
   async get(url) {
-    const urlWithQuery = url + url.includes("?") ? "&$top=1000" : "?$top=1000";
+    const urlWithQuery =
+      url + (url.includes("?") ? "&$top=1000" : "?$top=1000");
     const res = await axios.get(
       `${this.companyFileUrl}/${urlWithQuery}`,
       this.defaultHeaders()
