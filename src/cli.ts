@@ -32,6 +32,7 @@ export async function getOptions(instance) {
     entity: { type: "string", choices: ["*", ...createMethods] },
     count: { type: "number", default: 10 },
     mode: { choices: ["live", "cache"], default: "live" },
+    orgName: { type: "string", require: false },
   }).argv;
   return await argv;
 }

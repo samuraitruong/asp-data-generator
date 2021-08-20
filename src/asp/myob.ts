@@ -118,13 +118,19 @@ export class Myob extends Base {
     return res.data;
   }
 
-  async getCompanyFiles() {
+  async getCompanyFiles(orgName?: string) {
     const res = await axios.get(
       `https://api.myob.com/accountright/`,
       this.defaultHeaders()
     );
     this.companyFileUrl = res.data[0].Uri;
+    if (orgName) {
+      this.companyFileUrl = res.data.find((x) => x.Name == orgName);
+    }
     fs.writeJSONSync("myob_companyfiles.json", res.data);
+    if (!this.companyFileUrl) {
+      throw new Error("Cant not find org name: " + orgName);
+    }
     return res.data;
   }
 

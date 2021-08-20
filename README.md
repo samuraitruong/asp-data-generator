@@ -33,6 +33,12 @@ run yarn server
 - Follow the login process and select the org
 - callback will be come back, the access token will be retreived and store as xero.json file
 
+### XERO
+
+- visit https://local.aspgenerator.com:3443/connect/myob
+- Follow the login process and select the org
+- callback will be come back, the access token will be retreived and store as myob.json file
+
 ### Generate data
 
 ### QBO
@@ -42,7 +48,7 @@ Finished the login process above to generate intuit.json
 You can update src/qbo.ts to disable the entity that you dont want or increase the number of item to insert
 
 ```
-  yarn qbo
+  yarn qbo --help
 
 ```
 
@@ -53,6 +59,17 @@ Finished the login process above to generate xero.json
 You can update src/xero.ts to disable the entity that you dont want or increase the number of item to insert
 
 ```
-  yarn qbo
+  yarn qbo --help
+
+```
+
+### MYOB
+
+Finished the login process above to generate xero.json
+
+You can update src/xero.ts to disable the entity that you dont want or increase the number of item to insert
+
+```
+  yarn myob --help
 
 ```

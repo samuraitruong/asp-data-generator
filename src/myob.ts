@@ -11,7 +11,7 @@ dotenv.config();
 
   try {
     await myob.refreshToken();
-    await myob.getCompanyFiles();
+    await myob.getCompanyFiles(options.orgName);
     await myob.fetchCommonEntities();
 
     if (options.entity !== "*") {
