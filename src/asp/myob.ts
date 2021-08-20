@@ -17,6 +17,7 @@ export class Myob extends Base {
   taxCodes: [];
   accounts: [];
   jobs: [];
+  uid = [];
   constructor() {
     super();
     this.clientId = process.env.MYOB_CLIENT_ID;
@@ -303,6 +304,42 @@ export class Myob extends Base {
     return this.post("Contact/Supplier", model, "DisplayID");
   }
 
+  async createPersonal() {
+    const model = {
+      LastName: faker.name.findName(),
+      FirstName: faker.name.lastName(),
+      CompanyName: faker.company.companyName(),
+      IsIndividual: Math.random() > 0.5,
+      DisplayID: this.uniqueNumber(),
+      Notes: faker.lorem.sentence(),
+      Addresses: [
+        {
+          Street: faker.address.streetAddress(),
+          City: faker.address.cityName(),
+          State: faker.address.state(),
+          PostCode: faker.address.zipCode(),
+          Country: faker.address.country(),
+          Email: faker.internet.email(),
+          Phone1: faker.phone.phoneNumber(),
+          Website: faker.internet.domainName(),
+          ContactName: faker.name.findName(),
+        },
+        {
+          Street: faker.address.streetAddress(),
+          City: faker.address.cityName(),
+          State: faker.address.state(),
+          PostCode: faker.address.zipCode(),
+          Country: faker.address.country(),
+          Email: faker.internet.email(),
+          Phone1: faker.phone.phoneNumber(),
+          Website: faker.internet.domainName(),
+          ContactName: faker.name.findName(),
+        },
+      ],
+    };
+    return this.post("Contact/Personal", model, "DisplayID");
+  }
+
   async createJob() {
     const model = {
       Number: this.uniqueNumber(),
@@ -319,7 +356,7 @@ export class Myob extends Base {
 
   async createGeneralJournal() {
     const amount = this.rndAmount();
-    const job = { UID: this.any(this.jobs).UID };
+    // const job = { UID: this.any(this.jobs).UID };
     const model = {
       DisplayID: this.uniqueNumber(),
       DateOccurred: this.rndDate(),
@@ -331,7 +368,7 @@ export class Myob extends Base {
           },
           // Job: job,
           Memo: faker.lorem.sentence(),
-          TaxCode: this.any(this.taxCodes),
+          TaxCode: this.randTax("GST_VAT"),
           Amount: amount,
           IsCredit: false,
           TaxAmount: 0,
@@ -339,11 +376,11 @@ export class Myob extends Base {
         },
         {
           Account: {
-            UID: this.randAccount("AccountsReceivable", undefined, false).UID,
+            UID: this.randAccount("AccountReceivable", undefined, false).UID,
           },
           //  Job: job,
           Memo: faker.lorem.sentence(),
-          TaxCode: this.any(this.taxCodes),
+          TaxCode: this.randTax("GST_VAT"),
           Amount: amount,
           IsCredit: true,
           TaxAmount: 0,
@@ -351,7 +388,7 @@ export class Myob extends Base {
         },
       ],
     };
-    return this.post("GeneralLedger/GeneralJournal", model, "UID");
+    return this.post("GeneralLedger/GeneralJournal", model, "DisplayID");
   }
 
   async createAccount() {
@@ -649,8 +686,11 @@ export class Myob extends Base {
     const type = this.any(["Bill", "Order"]);
 
     const orders = await this.get(`Purchase/${type}/Item?status=Open`);
-    const po = this.any(orders.filter((x) => x.BalanceDueAmount > 0));
+    const po = this.any(
+      orders.filter((x) => x.BalanceDueAmount > 0 && !this.uid.includes(x.UID))
+    );
     if (!po) return;
+    this.uid.push(po.UID);
 
     const model = {
       PayFrom: "Account",

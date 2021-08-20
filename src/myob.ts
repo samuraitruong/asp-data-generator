@@ -19,6 +19,7 @@ dotenv.config();
         try {
           return await myob[`create${options.entity}`]();
         } catch (err) {
+          console.error(err);
           //swallow
         }
       });
