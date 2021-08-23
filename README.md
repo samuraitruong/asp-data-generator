@@ -33,7 +33,7 @@ run yarn server
 - Follow the login process and select the org
 - callback will be come back, the access token will be retreived and store as xero.json file
 
-### XERO
+### MYOB
 
 - visit https://local.aspgenerator.com:3443/connect/myob
 - Follow the login process and select the org

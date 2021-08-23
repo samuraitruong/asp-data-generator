@@ -18,8 +18,11 @@ dotenv.config();
       const results = await asyncPool(
         options.threads,
         Array(options.count),
-        async () => {
+        async (index) => {
           try {
+            if (index % 100 === 0) {
+              await myob.refreshToken();
+            }
             return await myob[`create${options.entity}`]();
           } catch (err) {
             console.error(err);
