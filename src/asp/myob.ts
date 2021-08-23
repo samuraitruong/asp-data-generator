@@ -824,4 +824,10 @@ export class Myob extends Base {
     await this.createPersonal();
     await this.createInventoryItem();
   }
+
+  async createTestData() {
+    await this.createSaleInvoiceItem();
+    await this.createGeneralJournal();
+    await this.createSaleCustomerPayment();
+  }
 }
