@@ -17,7 +17,7 @@ dotenv.config();
     if (options.entity !== "*") {
       const results = await asyncPool(
         options.threads,
-        Array(options.count),
+        Array.from(Array(options.count).keys()),
         async (index) => {
           try {
             if (index % 100 === 0) {
