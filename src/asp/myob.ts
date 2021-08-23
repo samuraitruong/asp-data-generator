@@ -126,7 +126,7 @@ export class Myob extends Base {
     );
     this.companyFileUrl = res.data[0].Uri;
     if (orgName) {
-      this.companyFileUrl = res.data.find((x) => x.Name == orgName);
+      this.companyFileUrl = res.data.find((x) => x.Name == orgName)?.Uri;
     }
     fs.writeJSONSync("myob_companyfiles.json", res.data);
     if (!this.companyFileUrl) {
