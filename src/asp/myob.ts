@@ -818,16 +818,20 @@ export class Myob extends Base {
   }
 
   async createCommonEntity() {
-    await this.createAccount();
-    await this.createCustomer();
-    await this.createSupplier();
-    await this.createPersonal();
-    await this.createInventoryItem();
+    return [
+      await this.createAccount(),
+      await this.createCustomer(),
+      await this.createSupplier(),
+      await this.createPersonal(),
+      await this.createInventoryItem(),
+    ];
   }
 
   async createTestData() {
-    await this.createSaleInvoiceItem();
-    await this.createGeneralJournal();
-    await this.createSaleCustomerPayment();
+    return [
+      await this.createSaleInvoiceItem(),
+      await this.createGeneralJournal(),
+      await this.createSaleCustomerPayment(),
+    ];
   }
 }

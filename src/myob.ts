@@ -29,8 +29,8 @@ dotenv.config();
       );
       console.log(
         "Items created: %d",
-        results.filter(Boolean).length,
-        results.filter(Boolean)
+        results.flat().filter(Boolean).length,
+        results.flat().filter(Boolean)
       );
       return;
     }
