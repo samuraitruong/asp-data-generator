@@ -40,6 +40,7 @@ run yarn server
 - callback will be come back, the access token will be retreived and store as myob.json file
 
 ### Generate data
+if the connection are multiple org, xero m
 
 ### QBO
 

@@ -18,6 +18,7 @@ export class Myob extends Base {
   accounts: [];
   jobs: [];
   uid = [];
+  openInvoices = [];
   constructor() {
     super();
     this.clientId = process.env.MYOB_CLIENT_ID;
@@ -149,6 +150,7 @@ export class Myob extends Base {
     fs.writeJSONSync(filePath, data, { spaces: 4 });
     return data;
   }
+
   async fetchCommonEntities() {
     this.taxCodes = await this.get("GeneralLedger/TaxCode");
     this.accounts = await this.get("GeneralLedger/Account");
@@ -449,10 +451,19 @@ export class Myob extends Base {
     // console.log(model);
     return this.post("GeneralLedger/Account", model, "DisplayID");
   }
+
   async createSaleCustomerPayment() {
     // need to query the customer invoice and place the payment.
-    const invoices = await this.get("Sale/Invoice?status=Open");
-    const invoice = this.any(invoices.filter((x) => x.BalanceDueAmount > 0));
+    if (this.openInvoices.length < 10) {
+      this.openInvoices = await this.get(
+        "Sale/Invoice?$filter=Status eq 'Open'"
+      );
+    }
+    const invoice = this.any(
+      this.openInvoices.filter((x) => x.BalanceDueAmount > 0)
+    );
+
+    this.openInvoices = this.openInvoices.filter((x) => x.UID !== invoice.UID);
 
     const model = {
       PayFrom: "Account",
@@ -678,10 +689,12 @@ export class Myob extends Base {
     };
     return model;
   }
+
   async createPurchaseOrderItem() {
     const model = this.getPurchaseModel();
     return this.post("Purchase/Order/Item", model, "Number");
   }
+
   async createPurchaseBillItem() {
     const model = this.getPurchaseModel();
     return this.post("Purchase/Bill/Item", model, "Number");
@@ -691,7 +704,9 @@ export class Myob extends Base {
     // finder the supplier
     const type = this.any(["Bill", "Order"]);
 
-    const orders = await this.get(`Purchase/${type}/Item?status=Open`);
+    const orders = await this.get(
+      `Purchase/${type}/Item?$filter=Status eq 'Open'`
+    );
     const po = this.any(
       orders.filter((x) => x.BalanceDueAmount > 0 && !this.uid.includes(x.UID))
     );
@@ -800,5 +815,13 @@ export class Myob extends Base {
       ForeignCurrency: null,
     };
     return this.post("Banking/SpendMoneyTxn", model, "PaymentNumber");
+  }
+
+  async createCommonEntity() {
+    await this.createAccount();
+    await this.createCustomer();
+    await this.createSupplier();
+    await this.createPersonal();
+    await this.createInventoryItem();
   }
 }

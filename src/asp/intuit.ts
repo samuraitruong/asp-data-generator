@@ -19,7 +19,7 @@ export class Intuit {
   _vendors: any[] = [];
 
   constructor(private client) {
-    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${client.getToken().realmId
+    this.apiUrl = `https://quickbooks.api.this.com/v3/company/${client.getToken().realmId
       }`;
   }
 
@@ -467,10 +467,11 @@ export class Intuit {
       }
     }
     do {
+      console.log(query);
       const res = await this.client.makeApiCall({
         url: `${this.apiUrl}/query?query=${query} STARTPOSITION ${index} MaxResults 1000&minorversion=59`,
       });
-
+      console.log("query done");
       page = Object.values(res.json.QueryResponse)[0] as any[];
 
       data = [...data, ...page];
@@ -496,11 +497,6 @@ export class Intuit {
 
   async accounts() {
     return this.query("select * from Account");
-
-    // const res = await this.client.makeApiCall({
-    //   url: this.apiUrl + "/query?query=select * from Account&minorversion=59"
-    // })
-    // return res.json.QueryResponse.Account
   }
 
   parseReport(report) {
@@ -707,5 +703,25 @@ export class Intuit {
     model.TotalAmt = total;
 
     return this.post("/purchaseorder", model);
+  }
+
+  async createCommonEntity() {
+    await this.createCustomer();
+    await this.createItem();
+    await this.createVendor();
+    await this.createAccount();
+  }
+
+  async createData() {
+    await this.createJournalEntry();
+    await this.createPurchase();
+    await this.createInvoice();
+    await this.createPayment();
+    await this.createSaleReciept();
+    await this.createPurchaseOrder();
+    await this.createBill();
+    await this.createCreditCardPayment();
+    await this.createVendorCredit();
+    await this.createCreditMemo();
   }
 }

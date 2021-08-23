@@ -6,8 +6,8 @@ import { getOptions } from "./cli";
 dotenv.config();
 
 (async () => {
+  const options = await getOptions(Myob, 10);
   const myob = new Myob();
-  const options = await getOptions(Myob);
 
   try {
     await myob.refreshToken();
@@ -15,14 +15,18 @@ dotenv.config();
     await myob.fetchCommonEntities();
 
     if (options.entity !== "*") {
-      const results = await asyncPool(10, Array(options.count), async () => {
-        try {
-          return await myob[`create${options.entity}`]();
-        } catch (err) {
-          console.error(err);
-          //swallow
+      const results = await asyncPool(
+        options.threads,
+        Array(options.count),
+        async () => {
+          try {
+            return await myob[`create${options.entity}`]();
+          } catch (err) {
+            console.error(err);
+            //swallow
+          }
         }
-      });
+      );
       console.log(
         "Items created: %d",
         results.filter(Boolean).length,

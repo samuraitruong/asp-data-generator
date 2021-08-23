@@ -11,7 +11,7 @@ const token = JSON.parse(fs.readFileSync("intuit.json", "utf8")).token;
 dotenv.config();
 
 (async () => {
-  const options = await getOptions(Intuit);
+  const options = await getOptions(Intuit, 10);
 
   const oauthClient = new OAuthClient({
     clientId: process.env.INTUIT_CLIENT_ID,
@@ -20,43 +20,27 @@ dotenv.config();
     redirectUri: process.env.REDIRECT_URL,
     token,
   });
+  console.log("Refresh Token");
   await oauthClient.refresh();
 
-  try {
-    const intuit = new Intuit(oauthClient);
-    await intuit.fetchCommonEntities(options.mode);
-    if (options.entity !== "*") {
-      const results = await asyncPool(10, Array(options.count), async () => {
-        try {
-          return await intuit[`create${options.entity}`]();
-        } catch (err) {
-          //swallow
-        }
-      });
-      console.log(
-        "Items created: %d",
-        results.filter(Boolean).length,
-        results.filter(Boolean)
-      );
-      return;
+  const intuit = new Intuit(oauthClient);
+  console.log("fetching common entities");
+  await intuit.fetchCommonEntities(options.mode);
+  const results = await asyncPool(
+    options.threads,
+    Array(options.count),
+    async () => {
+      try {
+        return await intuit[`create${options.entity}`]();
+      } catch (err) {
+        console.log(err);
+        //swallow
+      }
     }
-
-    let index = 0;
-
-    asyncPool(10, Array(1000), async () => {
-      intuit.createCreditMemo();
-      await intuit.createJournalEntry();
-      await intuit.createPurchase();
-      await intuit.createInvoice();
-      await intuit.createPayment();
-      await intuit.createSaleReciept();
-      await intuit.createPurchaseOrder();
-      await intuit.createBill();
-      await intuit.createCreditCardPayment();
-      await intuit.createVendorCredit();
-      console.log(chalk.green("finished iteration %s"), index++);
-    });
-  } catch (err) {
-    console.log("Got error", err);
-  }
+  );
+  console.log(
+    "Items created: %d",
+    results.filter(Boolean).length,
+    results.filter(Boolean)
+  );
 })();
