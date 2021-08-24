@@ -12,15 +12,17 @@ dotenv.config();
   try {
     await myob.refreshToken();
     await myob.getCompanyFiles(options.orgName);
-    await myob.fetchCommonEntities();
-
+    if (!options.skipCommonEntity) {
+      await myob.fetchCommonEntities();
+    }
+    let index = 0;
     if (options.entity !== "*") {
       const results = await asyncPool(
         options.threads,
         Array(options.count),
-        async (index) => {
+        async () => {
           try {
-            if (index % 100 === 0) {
+            if (++index % 100 === 0) {
               await myob.refreshToken();
             }
             return await myob[`create${options.entity}`]();
@@ -37,18 +39,7 @@ dotenv.config();
       );
       return;
     }
-
-    // let index = 0;
-    // asyncPool(10, Array(1), async () => {
-    //   await myob.createPurchaseOrder();
-    //   await myob.createInvoice();
-    //   await myob.createCreditNote();
-    //   await myob.createManualJournal();
-    //   await myob.createFixedAsset();
-    //   console.log(chalk.green("finished iteration %s"), index++);
-    // });
   } catch (err) {
     console.log("Got error", err);
   }
-  // console.log(JSON.parse(data.body))
 })();

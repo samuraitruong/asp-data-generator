@@ -13,6 +13,10 @@ XERO_CLIENT_ID={XERO_CLIENT_ID}
 XERO_CLIENT_SECRET={XERO_CLIENT_SECRET}
 XERO_REDIRECT_URL=https://local.aspgenerator.com:3443/oauth/xero
 
+MYOB_CLIENT_ID={MYOB_CLIENT_ID}
+MYOB_CLIENT_SECRET={MYOB_CLIENT_SECRET}
+MYOB_REDIRECT_URL=https://local.aspgenerator.com:3443/oauth/xero
+
 ```
 
 ## Connect the asp org
@@ -40,6 +44,7 @@ run yarn server
 - callback will be come back, the access token will be retreived and store as myob.json file
 
 ### Generate data
+
 if the connection are multiple org, xero m
 
 ### QBO
@@ -74,3 +79,7 @@ You can update src/xero.ts to disable the entity that you dont want or increase 
   yarn myob --help
 
 ```
+
+## TODO
+
+- Fix business logic violation when using random account or other entities

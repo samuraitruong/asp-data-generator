@@ -400,6 +400,10 @@ export class Myob extends Base {
   }
 
   async createAccount() {
+    if (!this.accounts || this.accounts.length === 0) {
+      this.accounts = await this.get("GeneralLedger/Account");
+    }
+
     const accountMapping = {
       Asset: [
         "Bank",
@@ -425,19 +429,17 @@ export class Myob extends Base {
 
     const Classification = this.any(Object.keys(accountMapping));
     const Type = this.any(accountMapping[Classification]);
-    const IsHeader = Math.random() < 0.2;
-    let ParentAccount = undefined;
+    const IsHeader = false; // Math.random() < 0.2;
 
-    if (!IsHeader || IsHeader) {
-      ParentAccount = this.randAccount(
-        Classification,
-        this.any([1, 2, 3]),
-        true
-      );
-    }
+    const ParentAccount = this.randAccount(Type, this.any([2, 3]), true);
 
     const model = {
-      Name: Type + " - " + faker.finance.accountName(),
+      Name:
+        Type +
+        " - " +
+        faker.finance.accountName() +
+        " - " +
+        faker.datatype.string(),
       DisplayID: this.uniqueNumber(),
       Classification,
       Type,
@@ -445,8 +447,9 @@ export class Myob extends Base {
       Description: faker.lorem.sentence(),
       IsActive: true,
       IsHeader,
-      TaxCode: { UID: this.any(this.taxCodes).UID },
+      TaxCode: this.anyUID(this.taxCodes),
       ParentAccount,
+      // OpeningBalance: 10000,
     };
     // console.log(model);
     return this.post("GeneralLedger/Account", model, "DisplayID");

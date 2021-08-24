@@ -50,7 +50,7 @@ export class Xero {
       clientSecret: process.env.XERO_CLIENT_SECRET || "",
       redirectUris: [
         process.env.XERO_REDIRECT_URL ||
-          "https://local.aspgenerator.com:3443/oauth/xero",
+        "https://local.aspgenerator.com:3443/oauth/xero",
       ],
       scopes: XERO_SCOPES,
       // state: 'returnPage=my-sweet-dashboard', // custom params (optional)
@@ -63,7 +63,7 @@ export class Xero {
     const filter = this.accounts.filter((x) => !type || x.type === type);
     return this.any(filter);
   }
-  public async refreshToken() {
+  public async refreshToken(orgName?: string) {
     await this.client.initialize();
     await this.client.setTokenSet(this.tokenSet);
     this.tokenSet = await this.client.refreshWithRefreshToken(
@@ -73,7 +73,7 @@ export class Xero {
     );
     fs.writeFileSync("xero.json", JSON.stringify(this.tokenSet, null, 2));
     await this.client.updateTenants(false);
-
+    // TODO select right tenant
     this.tenant = this.client.tenants[0];
   }
 
@@ -485,5 +485,21 @@ export class Xero {
       },
       "assetId"
     );
+  }
+  async createCommonEntity() {
+    return [
+      await this.createAccount(),
+      await this.createContact(),
+      await this.createItem(),
+    ];
+  }
+  async createTestData() {
+    return [
+      await this.createPurchaseOrder(),
+      await this.createInvoice(),
+      await this.createCreditNote(),
+      await this.createManualJournal(),
+      await this.createFixedAsset(),
+    ];
   }
 }

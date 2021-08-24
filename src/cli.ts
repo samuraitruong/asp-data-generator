@@ -29,11 +29,16 @@ export function getClassMethods(className: any) {
 export async function getOptions(instance, threads = 10) {
   const createMethods = getClassMethods(instance);
   const argv = yargs(process.argv).options({
-    entity: { type: "string", choices: ["*", ...createMethods] },
+    entity: { type: "string", choices: createMethods },
     count: { type: "number", default: 10 },
     mode: { choices: ["live", "cache"], default: "live" },
     orgName: { type: "string", require: false },
     threads: { type: "number", default: threads },
+    skipCommonEntity: {
+      name: "skip-common-entity",
+      type: "boolean",
+      default: false,
+    },
   }).argv;
   return await argv;
 }
