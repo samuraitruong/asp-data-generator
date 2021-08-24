@@ -1,11 +1,13 @@
 import * as dotenv from "dotenv";
-import * as fs from "fs";
+import * as path from "path";
+import * as fs from "fs-extra";
 import OAuthClient from "intuit-oauth";
 import { XeroClient } from "xero-node";
 import * as https from "https";
 import express from "express";
 import { XERO_SCOPES } from "./constants";
 import { Myob } from "./asp/myob";
+import open from "open";
 
 dotenv.config();
 
@@ -60,8 +62,8 @@ app.get("/oauth/intuit", async (req, res) => {
     res.json(err);
   }
 });
-app.get("/ping", (req, res) => {
-  res.send("Pong");
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "/html/index.html"));
 });
 
 app.get("/connect/intuit", (req, res) => {
@@ -90,7 +92,9 @@ app.get("/oauth/xero", async (req, res) => {
   try {
     const tokenSet = await xeroClient.apiCallback(req.url);
     fs.writeFileSync("xero.json", JSON.stringify(tokenSet, null, 4));
-    res.json(tokenSet);
+    const tenants = await xeroClient.updateTenants(true);
+    fs.writeJsonSync("xero_tenants.json", tenants, { spaces: 4 });
+    res.json({ tokenSet, tenants });
   } catch (err) {
     res.json(err);
   }
@@ -101,6 +105,8 @@ const httpsServer = https.createServer(
   app
 );
 
-httpsServer.listen(3443, () => {
+httpsServer.listen(3443, async () => {
   console.log("server started at 3443 port");
+  await open("https://local.aspgenerator.com:3443");
+  console.log("Please check the browser to connect asp");
 });

@@ -23,7 +23,7 @@ import {
   XeroClient,
 } from "xero-node";
 import hashObject from "object-hash";
-
+import faker from "faker";
 import * as fs from "fs";
 
 import { XERO_SCOPES } from "../constants";
@@ -73,8 +73,11 @@ export class Xero {
     );
     fs.writeFileSync("xero.json", JSON.stringify(this.tokenSet, null, 2));
     await this.client.updateTenants(false);
-    // TODO select right tenant
-    this.tenant = this.client.tenants[0];
+    this.tenant = this.client.tenants.find((x) => x.tenantName === orgName);
+    if (!this.tenant) {
+      this.tenant = this.client.tenants[0];
+    }
+    console.log("Tenant", this.tenant);
   }
 
   rndAmount(max = 2000) {

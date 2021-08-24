@@ -12,6 +12,7 @@
     "intuit-oauth": "^4.0.0",
     "moment": "^2.29.1",
     "object-hash": "^2.2.0",
+    "open": "^8.2.1",
     "qs": "^6.10.1",
     "tiny-async-pool": "^1.2.0",
     "unique-names-generator": "^4.6.0",
