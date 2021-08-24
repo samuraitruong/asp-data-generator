@@ -19,7 +19,7 @@ export class Intuit {
   _vendors: any[] = [];
 
   constructor(private client) {
-    this.apiUrl = `https://quickbooks.api.this.com/v3/company/${client.getToken().realmId
+    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${client.getToken().realmId
       }`;
   }
 
@@ -471,7 +471,6 @@ export class Intuit {
       const res = await this.client.makeApiCall({
         url: `${this.apiUrl}/query?query=${query} STARTPOSITION ${index} MaxResults 1000&minorversion=59`,
       });
-      console.log("query done");
       page = Object.values(res.json.QueryResponse)[0] as any[];
 
       data = [...data, ...page];
