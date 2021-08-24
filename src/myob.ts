@@ -12,9 +12,9 @@ dotenv.config();
   try {
     await myob.refreshToken();
     await myob.getCompanyFiles(options.orgName);
-    
+
     await myob.fetchCommonEntities();
-    
+
     let index = 0;
     if (options.entity !== "*") {
       const results = await asyncPool(

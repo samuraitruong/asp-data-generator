@@ -4,9 +4,11 @@ import asyncPool from "tiny-async-pool";
 import * as fs from "fs-extra";
 import { INTUIT_ACCOUNT_ENUMS, FLAT_ACCOUNT_LIST } from "../constants";
 import chalk from "chalk";
+import { Base } from "./base";
+import OAuthClient from "intuit-oauth";
 
-export class Intuit {
-  readonly apiUrl;
+export class Intuit extends Base {
+  apiUrl: string;
   mode = "live";
   _customers: any[] = [];
 
@@ -17,19 +19,39 @@ export class Intuit {
   _items: any[] = [];
 
   _vendors: any[] = [];
+  client: OAuthClient;
+  constructor() {
+    super();
+    const token = fs.readJsonSync("intuit.json").token;
 
-  constructor(private client) {
-    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${client.getToken().realmId
-      }`;
+    this.client = new OAuthClient({
+      clientId: process.env.INTUIT_CLIENT_ID,
+      clientSecret: process.env.INTUIT_CLIENT_SECRET,
+      environment: "production",
+      redirectUri: process.env.REDIRECT_URL,
+      token,
+    });
   }
-
+  async refreshToken() {
+    await this.client.refresh();
+    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${
+      this.client.getToken().realmId
+    }`;
+  }
   async fetchCommonEntities(mode: string) {
     this.mode = mode;
-    this._customers = await this.customers();
-    this._accounts = await this.accounts();
-    this._accountList = await this.accountList();
-    this._items = await this.items();
-    this._vendors = await this.vendors();
+    const [c, acc, accl, items, v] = await Promise.all([
+      this.customers(),
+      this.accounts(),
+      this.accountList(),
+      this.items(),
+      this.vendors(),
+    ]);
+    this._customers = c;
+    this._accounts = acc;
+    this._accountList = accl;
+    this._items = items;
+    this._vendors = v;
   }
 
   private async createAllAccount() {
@@ -213,7 +235,7 @@ export class Intuit {
       if (
         requiredFields &&
         requiredFields.map((x) => item[x]).filter(Boolean).length ===
-        requiredFields.length
+          requiredFields.length
       )
         return item;
     }

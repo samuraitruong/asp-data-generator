@@ -50,7 +50,7 @@ export class Xero {
       clientSecret: process.env.XERO_CLIENT_SECRET || "",
       redirectUris: [
         process.env.XERO_REDIRECT_URL ||
-        "https://local.aspgenerator.com:3443/oauth/xero",
+          "https://local.aspgenerator.com:3443/oauth/xero",
       ],
       scopes: XERO_SCOPES,
       // state: 'returnPage=my-sweet-dashboard', // custom params (optional)
