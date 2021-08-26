@@ -26,7 +26,7 @@ export function getClassMethods(className: any) {
     .map((x: string) => x.replace("create", ""));
 }
 
-export async function getOptions(instance, threads = 10) {
+export async function getOptions(instance, threads = 10, defaultDays = 760) {
   const createMethods = getClassMethods(instance);
   const argv = yargs(process.argv).options({
     entity: { type: "string", choices: createMethods },
@@ -34,6 +34,7 @@ export async function getOptions(instance, threads = 10) {
     mode: { choices: ["live", "cache"], default: "live" },
     orgName: { type: "string", require: false },
     threads: { type: "number", default: threads },
+    days: { type: "number", default: defaultDays },
     skipCommonEntity: {
       name: "skip-common-entity",
       type: "boolean",

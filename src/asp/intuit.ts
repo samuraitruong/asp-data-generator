@@ -20,8 +20,8 @@ export class Intuit extends Base {
 
   _vendors: any[] = [];
   client: OAuthClient;
-  constructor() {
-    super();
+  constructor(days = 761) {
+    super(days, "YYYY-MM-DD");
     const token = fs.readJsonSync("intuit.json").token;
 
     this.client = new OAuthClient({
@@ -34,9 +34,8 @@ export class Intuit extends Base {
   }
   async refreshToken() {
     await this.client.refresh();
-    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${
-      this.client.getToken().realmId
-    }`;
+    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${this.client.getToken().realmId
+      }`;
   }
   async fetchCommonEntities(mode: string) {
     this.mode = mode;
@@ -107,7 +106,7 @@ export class Intuit extends Base {
 
     const model = {
       PrivateNote: faker.finance.transactionDescription(),
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       Amount: this.rndAmount(),
       BankAccountRef: {
         name: bankAcc.Name,
@@ -127,7 +126,7 @@ export class Intuit extends Base {
     const items = this.ranItems(this._items, 5);
 
     const model = {
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       DocNumber: this.docNum(),
       Line: items.map((item) => ({
         DetailType: "SalesItemLineDetail",
@@ -159,7 +158,7 @@ export class Intuit extends Base {
 
     const amout = this.rndAmount();
     const model = {
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       DocNumber: this.docNum(),
       Line: [
         {
@@ -235,7 +234,7 @@ export class Intuit extends Base {
       if (
         requiredFields &&
         requiredFields.map((x) => item[x]).filter(Boolean).length ===
-          requiredFields.length
+        requiredFields.length
       )
         return item;
     }
@@ -301,7 +300,7 @@ export class Intuit extends Base {
     const cus = this.any(this._customers);
     const expenseAccounts = this.ranItems(this._accounts, 3);
     const model = {
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       TxnNum: new Date().getTime(),
       PaymentType: type,
       EntityRef: {
@@ -336,20 +335,10 @@ export class Intuit extends Base {
     return this.post("/purchase", model);
   }
 
-  rndDate() {
-    const date = Math.floor(Math.random() * 761);
-    return moment().subtract(date, "days").format("YYYY-MM-DD");
-  }
-
-  rndAmount(max = 2000) {
-    // return faker.finance.amount();
-    return +(Math.random() * max).toFixed(2);
-  }
-
   async createPayment() {
     const customer = this.any(this._customers);
     const model = {
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       TotalAmt: this.rndAmount(10000),
       CustomerRef: {
         value: customer.Id,
@@ -562,7 +551,7 @@ export class Intuit extends Base {
     const vendor = this.any(this._vendors);
     const model = {
       DocNumber: this.docNum(),
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       Line: items.map((item, index) => ({
         DetailType: "AccountBasedExpenseLineDetail",
         Amount: this.rndAmount(),
@@ -601,7 +590,7 @@ export class Intuit extends Base {
     const amt = this.rndAmount(500);
     const model = {
       TotalAmt: amt,
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       Line: [
         {
           DetailType: "AccountBasedExpenseLineDetail",
@@ -641,7 +630,7 @@ export class Intuit extends Base {
 
     const model = {
       DocNumber: this.docNum(),
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       CustomerRef: {
         name: cus.Name,
         value: cus.Id,
@@ -681,7 +670,7 @@ export class Intuit extends Base {
     let total = 0;
     const model = {
       DocNumber: new Date().getTime(),
-      TxnDate: this.rndDate(),
+      TxnDate: this.transactionDate(),
       TotalAmt: 25.0,
       Line: items.map((item, index) => {
         total += item.UnitPrice || 25;

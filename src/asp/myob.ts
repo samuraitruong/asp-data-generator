@@ -2,7 +2,7 @@ import qs from "qs";
 import axios from "axios";
 import fs from "fs-extra";
 import path from "path";
-import faker, { fake } from "faker";
+import faker from "faker";
 import { Base } from "./base";
 import moment from "moment";
 
@@ -19,8 +19,8 @@ export class Myob extends Base {
   jobs: [];
   uid = [];
   openInvoices = [];
-  constructor() {
-    super();
+  constructor(days = 400) {
+    super(days, "iso");
     this.clientId = process.env.MYOB_CLIENT_ID;
     this.clientSeret = process.env.MYOB_CLIENT_SECRET;
     if (fs.existsSync("myob.json")) {

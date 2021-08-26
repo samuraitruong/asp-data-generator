@@ -20,21 +20,23 @@ import {
   PurchaseOrder,
   PurchaseOrders,
   TaxType,
+  TokenSet,
   XeroClient,
 } from "xero-node";
-import hashObject from "object-hash";
 import faker from "faker";
-import * as fs from "fs";
+import fs from "fs-extra";
 
 import { XERO_SCOPES } from "../constants";
 import moment from "moment";
 import { Asset } from "xero-node/dist/gen/model/assets/asset";
 import { AssetType } from "xero-node/dist/gen/model/assets/assetType";
 import { AssetStatus } from "xero-node/dist/gen/model/assets/assetStatus";
+import { Base } from "./base";
+import { BankAccount } from "xero-node/dist/gen/model/payroll-au/bankAccount";
 
-export class Xero {
+export class Xero extends Base {
   readonly client: XeroClient;
-
+  tokenSet: TokenSet;
   private tenant: any;
 
   accounts: Account[] = [];
@@ -44,13 +46,16 @@ export class Xero {
   contacts: Contact[] = [];
   assetTypes: AssetType[] = [];
 
-  constructor(public tokenSet: any) {
+  constructor(days: number) {
+    super(days, "YYYY-MM-DD");
+    this.tokenSet = JSON.parse(fs.readFileSync("xero.json", "utf8"));
+
     this.client = new XeroClient({
       clientId: process.env.XERO_CLIENT_ID || "",
       clientSecret: process.env.XERO_CLIENT_SECRET || "",
       redirectUris: [
         process.env.XERO_REDIRECT_URL ||
-          "https://local.aspgenerator.com:3443/oauth/xero",
+        "https://local.aspgenerator.com:3443/oauth/xero",
       ],
       scopes: XERO_SCOPES,
       // state: 'returnPage=my-sweet-dashboard', // custom params (optional)
@@ -121,9 +126,6 @@ export class Xero {
     const index = Math.floor(Math.random() * arr.length);
     return arr[index];
   }
-  docNum() {
-    return Math.random().toString().slice(3);
-  }
 
   async wrapApi(type, fn, keys = "") {
     try {
@@ -137,10 +139,7 @@ export class Xero {
     } catch (err) {
       try {
         if (err.response?.body) {
-          fs.writeFileSync(
-            "./logs/xero/" + type + ".json",
-            JSON.stringify(err.response.body, null, 4)
-          );
+          fs.writeJsonSync("./logs/xero/" + type + ".json", err.response.body);
           console.log(JSON.stringify(err.response.body, null, 2));
         } else {
           // Maybe rate limit, retrying
@@ -165,23 +164,6 @@ export class Xero {
     }
   }
 
-  rndDate() {
-    const date = Math.floor(Math.random() * 730);
-    return moment().subtract(date, "days").format("YYYY-MM-DD");
-  }
-
-  ranItems<T>(arr: T[], maxItems) {
-    const count = Math.ceil(Math.random() * maxItems);
-    const items = Array(count)
-      .fill(0)
-      .map((x) => this.any(arr));
-    const unique = items.reduce((a, b) => {
-      a[hashObject[b]] = b;
-      return a;
-    }, {});
-    return Object.values(unique) as T[];
-  }
-
   async createInvoice() {
     // const item = this.any(this.items);
     const acc = this.randAccount(AccountType.REVENUE);
@@ -193,8 +175,8 @@ export class Xero {
       .substr(0, 5)
       .toUpperCase();
     const invoice: Invoice = {
-      date: this.rndDate(),
-      dueDate: this.rndDate(),
+      date: this.transactionDate(),
+      dueDate: this.transactionDate(),
       type: Invoice.TypeEnum.ACCREC,
       invoiceNumber: prefix + "-" + faker.datatype.number(),
       lineAmountTypes: LineAmountTypes.NoTax,
@@ -234,7 +216,7 @@ export class Xero {
     const expense = this.randAccount(AccountType.EXPENSE);
     const lineItems: Item[] = this.ranItems(this.items, 1);
     const journal: ManualJournal = {
-      date: this.rndDate(),
+      date: this.transactionDate(),
 
       narration: faker.lorem.sentence(),
       lineAmountTypes: LineAmountTypes.NoTax,
@@ -285,7 +267,7 @@ export class Xero {
     const type = this.any(Object.values(AccountType)) as AccountType;
     const amt = this.rndAmount(500);
     const item: Item = {
-      name: faker.commerce.productName() + "# " + this.docNum(),
+      name: faker.commerce.productName() + "# " + this.uniqueNumber(),
       code: Math.round(Math.random() * 100000).toString(),
       description: faker.commerce.productDescription(),
       purchaseDetails: {
@@ -315,20 +297,58 @@ export class Xero {
   }
 
   async createAccount() {
-    const type = this.any(Object.values(AccountType)) as AccountType;
+    const type = this.any(
+      Object.values(AccountType).filter(
+        (x) =>
+          ![
+            AccountType.PAYGLIABILITY,
+            AccountType.SUPERANNUATIONEXPENSE,
+            AccountType.SUPERANNUATIONLIABILITY,
+            AccountType.WAGESEXPENSE,
+            AccountType.PAYG,
+          ].includes(x as any)
+      )
+    ) as AccountType;
+    const accountNames = {
+      [AccountType.BANK]: "Bank account",
+      [AccountType.CURRENT]: "Current Asset account",
+      [AccountType.CURRLIAB]: "Current Liability account",
+      [AccountType.DEPRECIATN]: "Depreciation account",
+      [AccountType.DIRECTCOSTS]: "Direct Costs account",
+      [AccountType.EQUITY]: "Equity account",
+      [AccountType.EXPENSE]: "Expense account",
+      [AccountType.FIXED]: "Fixed Asset account",
+      [AccountType.INVENTORY]: "Inventory Asset account",
+      [AccountType.LIABILITY]: "Liability account",
+      [AccountType.NONCURRENT]: "Non-current Asset account",
+      [AccountType.OTHERINCOME]: "Other Income account",
+      [AccountType.OVERHEADS]: "Overhead account",
+      [AccountType.PREPAYMENT]: "Prepayment account",
+      [AccountType.REVENUE]: "Revenue account",
+      [AccountType.SALES]: "Sale account",
+      [AccountType.TERMLIAB]: "Non - current Liability account",
+      [AccountType.PAYGLIABILITY]: "PAYG Liability account",
+      [AccountType.SUPERANNUATIONEXPENSE]: "Superannuation Expense account",
+      [AccountType.SUPERANNUATIONLIABILITY]: "Superannuation Liability account",
+      [AccountType.WAGESEXPENSE]: "Wages Expense account",
+    };
 
     const acc: Account = {
-      name: faker.finance.accountName() + "# " + this.docNum(),
+      name: accountNames[type] + " #" + this.uniqueNumber(),
       type,
       code: Math.round(Math.random() * 1000000).toString(),
       description: faker.commerce.productDescription(),
     };
-    return this.wrapApi("account", async () => {
-      return await this.client.accountingApi.createAccount(
-        this.tenant.tenantId,
-        acc
-      );
-    });
+    return this.wrapApi(
+      "account",
+      async () => {
+        return await this.client.accountingApi.createAccount(
+          this.tenant.tenantId,
+          acc
+        );
+      },
+      "accounts.0.accountID"
+    );
   }
 
   async createContact(isCustomer = false, isSupplier = false) {
@@ -338,7 +358,7 @@ export class Xero {
     const lastName = faker.name.lastName();
 
     const contact: Contact = {
-      name: firstName + " " + lastName + " #" + this.docNum(),
+      name: firstName + " " + lastName + " #" + this.uniqueNumber(),
       firstName,
       lastName,
       emailAddress: faker.internet.email(),
@@ -368,7 +388,7 @@ export class Xero {
       contacts: [contact],
     };
     return this.wrapApi(
-      "account",
+      "contact",
       async () => {
         return await this.client.accountingApi.createContacts(
           this.tenant.tenantId,
@@ -384,7 +404,7 @@ export class Xero {
     const item: CreditNote = {
       type: this.any(Object.values(CreditNote.TypeEnum)) as CreditNote.TypeEnum,
       contact: this.any(this.contacts),
-      date: this.rndDate(),
+      date: this.transactionDate(),
       status: CreditNote.StatusEnum.DRAFT,
       lineAmountTypes: LineAmountTypes.NoTax,
       lineItems: items.map((item) => ({
@@ -409,26 +429,15 @@ export class Xero {
       "creditNotes.0.creditNoteID"
     );
   }
-  uniqueNumber() {
-    return (
-      Math.random()
-        .toString(36)
-        .replace(/[^a-z]+/gi, "")
-        .substr(0, 5)
-        .toUpperCase() +
-      "-" +
-      faker.datatype.number()
-    );
-  }
 
   async createPurchaseOrder() {
     const items = this.ranItems(this.items, 5);
 
     const item: PurchaseOrder = {
       contact: this.any(this.contacts),
-      deliveryDate: this.rndDate(),
+      deliveryDate: this.transactionDate(),
       reference: this.uniqueNumber(),
-      date: this.rndDate(),
+      date: this.transactionDate(),
       status: this.any([
         PurchaseOrder.StatusEnum.AUTHORISED,
         PurchaseOrder.StatusEnum.BILLED,
@@ -466,7 +475,7 @@ export class Xero {
 
   async createFixedAsset() {
     const items = this.ranItems(this.items, 5);
-    const date = this.rndDate();
+    const date = this.transactionDate();
     const item: Asset = {
       assetName: faker.commerce.productName(),
       assetTypeId: this.any(this.assetTypes).assetTypeId,
