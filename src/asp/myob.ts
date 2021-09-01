@@ -354,7 +354,7 @@ export class Myob extends Base {
       Name: faker.commerce.productName(),
       Description: faker.lorem.sentence(),
     };
-    return this.post("GeneralLedger/Job", model, "UID");
+    return this.post("GeneralLedger/Job", model, "Number");
   }
 
   rndDate() {
