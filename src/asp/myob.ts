@@ -432,6 +432,9 @@ export class Myob extends Base {
     const IsHeader = false; // Math.random() < 0.2;
 
     const ParentAccount = this.randAccount(Type, this.any([2, 3]), true);
+    if (!ParentAccount) {
+      return await this.createAccount();
+    }
 
     const model = {
       Name:
