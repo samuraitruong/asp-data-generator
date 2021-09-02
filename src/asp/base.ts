@@ -19,7 +19,6 @@ export class Base {
     return items[index];
   }
   rndAmount(max = 2000) {
-    // return faker.finance.amount();
     return +(Math.random() * max).toFixed(2);
   }
 
@@ -34,7 +33,12 @@ export class Base {
       faker.datatype.number()
     );
   }
+  randBankAccount() {
+    const bsb = Math.random().toString().substr(2, 6);
+    const number = Math.random().toString().substr(2, 8);
 
+    return bsb + "-" + number;
+  }
   ranItems<T>(arr: T[], maxItems) {
     const count = Math.ceil(Math.random() * maxItems);
     const items = Array(count)

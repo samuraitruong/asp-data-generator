@@ -337,7 +337,22 @@ export class Xero extends Base {
       name: accountNames[type] + " #" + this.uniqueNumber(),
       type,
       code: Math.round(Math.random() * 1000000).toString(),
-      description: faker.commerce.productDescription(),
+      enablePaymentsToAccount:
+        type === AccountType.BANK ? undefined : type != AccountType.INVENTORY,
+      bankAccountType:
+        type === AccountType.BANK
+          ? this.any([
+            Account.BankAccountTypeEnum.CREDITCARD,
+            Account.BankAccountTypeEnum.BANK,
+          ])
+          : undefined,
+
+      description:
+        type === AccountType.BANK
+          ? undefined
+          : faker.commerce.productDescription(),
+      bankAccountNumber:
+        type === AccountType.BANK ? this.randBankAccount() : undefined,
     };
     return this.wrapApi(
       "account",

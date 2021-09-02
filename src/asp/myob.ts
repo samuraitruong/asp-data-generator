@@ -354,7 +354,7 @@ export class Myob extends Base {
       Name: faker.commerce.productName(),
       Description: faker.lorem.sentence(),
     };
-    return this.post("GeneralLedger/Job", model, "UID");
+    return this.post("GeneralLedger/Job", model, "Number");
   }
 
   rndDate() {
@@ -432,7 +432,9 @@ export class Myob extends Base {
     const IsHeader = false; // Math.random() < 0.2;
 
     const ParentAccount = this.randAccount(Type, this.any([2, 3]), true);
-
+    if (!ParentAccount) {
+      return await this.createAccount()
+    }
     const model = {
       Name:
         Type +
