@@ -10,7 +10,7 @@ dotenv.config();
 
   console.log("Refresh Token");
 
-  const intuit = new Intuit(options.endDate, options.days);
+  const intuit = new Intuit(options.startDate, options.endDate);
   await intuit.refreshToken();
   console.log("fetching common entities");
   await intuit.fetchCommonEntities(options.mode);

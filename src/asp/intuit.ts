@@ -20,8 +20,8 @@ export class Intuit extends Base {
 
   _vendors: any[] = [];
   client: OAuthClient;
-  constructor(endDate: string, days = 761) {
-    super(days, endDate, "YYYY-MM-DD");
+  constructor(startDate: string, endDate: string) {
+    super(startDate, endDate, "YYYY-MM-DD");
     const token = fs.readJsonSync("intuit.json").token;
 
     this.client = new OAuthClient({
@@ -152,7 +152,7 @@ export class Intuit extends Base {
   }
 
   async createJournalEntry() {
-    const date = Math.floor(Math.random() * 1000);
+    // const date = Math.floor(Math.random() * 1000);
     // const accAv = await this.rndAccount('Accounts Receivable');
     // const accAP = await this.rndAccount('Accounts Payable')
     const acc = this.any(this._accounts);

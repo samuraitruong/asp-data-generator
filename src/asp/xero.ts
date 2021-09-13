@@ -45,8 +45,8 @@ export class Xero extends Base {
   contacts: Contact[] = [];
   assetTypes: AssetType[] = [];
 
-  constructor(endDate: string, days: number) {
-    super(days, endDate, "YYYY-MM-DD");
+  constructor(startDate: string, endDate: string) {
+    super(startDate, endDate, "YYYY-MM-DD");
     this.tokenSet = JSON.parse(fs.readFileSync("xero.json", "utf8"));
 
     this.client = new XeroClient({
