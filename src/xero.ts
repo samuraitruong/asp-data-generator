@@ -7,7 +7,7 @@ dotenv.config();
 
 (async () => {
   const options = await getOptions(Xero, 5, 780);
-  const xero = new Xero(options.days);
+  const xero = new Xero(options.endDate, options.days);
   try {
     await xero.refreshToken(options.orgName);
     await xero.fetchCommonEntities();

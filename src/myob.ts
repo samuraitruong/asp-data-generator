@@ -7,7 +7,7 @@ dotenv.config();
 
 (async () => {
   const options = await getOptions(Myob, 10);
-  const myob = new Myob();
+  const myob = new Myob(options.endDate, options.days);
 
   try {
     await myob.refreshToken();

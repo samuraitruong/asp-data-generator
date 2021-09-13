@@ -1,4 +1,5 @@
 import yargs from "yargs";
+import moment from "moment";
 
 export function getClassMethods(className: any) {
   const ret = new Set();
@@ -26,7 +27,7 @@ export function getClassMethods(className: any) {
     .map((x: string) => x.replace("create", ""));
 }
 
-export async function getOptions(instance, threads = 10, defaultDays = 760) {
+export async function getOptions(instance, threads = 10, defaultDays = 730) {
   const createMethods = getClassMethods(instance);
   const argv = yargs(process.argv).options({
     entity: { type: "string", choices: createMethods },
@@ -35,6 +36,7 @@ export async function getOptions(instance, threads = 10, defaultDays = 760) {
     orgName: { type: "string", require: false },
     threads: { type: "number", default: threads },
     days: { type: "number", default: defaultDays },
+    endDate: { type: "string", default: moment().format("YYYY-MM-DD") },
     skipCommonEntity: {
       name: "skip-common-entity",
       type: "boolean",

@@ -3,10 +3,14 @@ import moment from "moment";
 import hashObject from "object-hash";
 
 export class Base {
-  constructor(private substractDates: number, private dateFormat: string) { }
+  constructor(
+    private subtractDates: number,
+    private endDate: string,
+    private dateFormat: string
+  ) {}
   transactionDate() {
-    const date = Math.floor(Math.random() * this.substractDates);
-    const m = moment().subtract(date, "days");
+    const date = Math.floor(Math.random() * this.subtractDates);
+    const m = moment(this.endDate).subtract(date, "days");
     if (this.dateFormat === "iso") {
       return m.toISOString();
     }

@@ -19,8 +19,8 @@ export class Myob extends Base {
   jobs: [];
   uid = [];
   openInvoices = [];
-  constructor(days = 400) {
-    super(days, "iso");
+  constructor(endDate: string, days = 400) {
+    super(days, endDate, "iso");
     this.clientId = process.env.MYOB_CLIENT_ID;
     this.clientSeret = process.env.MYOB_CLIENT_SECRET;
     if (fs.existsSync("myob.json")) {
