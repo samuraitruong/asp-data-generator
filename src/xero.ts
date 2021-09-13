@@ -6,8 +6,8 @@ import { getOptions } from "./cli";
 dotenv.config();
 
 (async () => {
-  const options = await getOptions(Xero, 5, 780);
-  const xero = new Xero(options.days);
+  const options = await getOptions(Xero, 5);
+  const xero = new Xero(options.startDate, options.endDate);
   try {
     await xero.refreshToken(options.orgName);
     await xero.fetchCommonEntities();

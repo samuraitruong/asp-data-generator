@@ -20,8 +20,8 @@ export class Intuit extends Base {
 
   _vendors: any[] = [];
   client: OAuthClient;
-  constructor(days = 761) {
-    super(days, "YYYY-MM-DD");
+  constructor(startDate: string, endDate: string) {
+    super(startDate, endDate, "YYYY-MM-DD");
     const token = fs.readJsonSync("intuit.json").token;
 
     this.client = new OAuthClient({
@@ -34,8 +34,9 @@ export class Intuit extends Base {
   }
   async refreshToken() {
     await this.client.refresh();
-    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${this.client.getToken().realmId
-      }`;
+    this.apiUrl = `https://quickbooks.api.intuit.com/v3/company/${
+      this.client.getToken().realmId
+    }`;
   }
   async fetchCommonEntities(mode: string) {
     this.mode = mode;
@@ -151,7 +152,7 @@ export class Intuit extends Base {
   }
 
   async createJournalEntry() {
-    const date = Math.floor(Math.random() * 1000);
+    // const date = Math.floor(Math.random() * 1000);
     // const accAv = await this.rndAccount('Accounts Receivable');
     // const accAP = await this.rndAccount('Accounts Payable')
     const acc = this.any(this._accounts);
@@ -234,7 +235,7 @@ export class Intuit extends Base {
       if (
         requiredFields &&
         requiredFields.map((x) => item[x]).filter(Boolean).length ===
-        requiredFields.length
+          requiredFields.length
       )
         return item;
     }

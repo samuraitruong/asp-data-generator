@@ -1,7 +1,4 @@
 import * as dotenv from "dotenv";
-import chalk from "chalk";
-import * as fs from "fs";
-import OAuthClient from "intuit-oauth";
 import { Intuit } from "./asp/intuit";
 import asyncPool from "tiny-async-pool";
 import { getOptions } from "./cli";
@@ -13,7 +10,7 @@ dotenv.config();
 
   console.log("Refresh Token");
 
-  const intuit = new Intuit();
+  const intuit = new Intuit(options.startDate, options.endDate);
   await intuit.refreshToken();
   console.log("fetching common entities");
   await intuit.fetchCommonEntities(options.mode);
