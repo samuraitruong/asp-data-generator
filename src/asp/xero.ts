@@ -32,7 +32,6 @@ import { Asset } from "xero-node/dist/gen/model/assets/asset";
 import { AssetType } from "xero-node/dist/gen/model/assets/assetType";
 import { AssetStatus } from "xero-node/dist/gen/model/assets/assetStatus";
 import { Base } from "./base";
-import { BankAccount } from "xero-node/dist/gen/model/payroll-au/bankAccount";
 
 export class Xero extends Base {
   readonly client: XeroClient;
@@ -46,8 +45,8 @@ export class Xero extends Base {
   contacts: Contact[] = [];
   assetTypes: AssetType[] = [];
 
-  constructor(days: number) {
-    super(days, "YYYY-MM-DD");
+  constructor(startDate: string, endDate: string) {
+    super(startDate, endDate, "YYYY-MM-DD");
     this.tokenSet = JSON.parse(fs.readFileSync("xero.json", "utf8"));
 
     this.client = new XeroClient({
@@ -55,7 +54,7 @@ export class Xero extends Base {
       clientSecret: process.env.XERO_CLIENT_SECRET || "",
       redirectUris: [
         process.env.XERO_REDIRECT_URL ||
-        "https://local.aspgenerator.com:3443/oauth/xero",
+          "https://local.aspgenerator.com:3443/oauth/xero",
       ],
       scopes: XERO_SCOPES,
       // state: 'returnPage=my-sweet-dashboard', // custom params (optional)

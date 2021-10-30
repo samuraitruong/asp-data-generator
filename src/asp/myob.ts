@@ -19,8 +19,8 @@ export class Myob extends Base {
   jobs: [];
   uid = [];
   openInvoices = [];
-  constructor(days = 400) {
-    super(days, "iso");
+  constructor(startDate: string, endDate: string) {
+    super(startDate, endDate, "iso");
     this.clientId = process.env.MYOB_CLIENT_ID;
     this.clientSeret = process.env.MYOB_CLIENT_SECRET;
     if (fs.existsSync("myob.json")) {
@@ -355,17 +355,12 @@ export class Myob extends Base {
     return this.post("GeneralLedger/Job", model, "Number");
   }
 
-  rndDate() {
-    const date = Math.floor(Math.random() * 370);
-    return moment().subtract(date, "days").toDate().toISOString();
-  }
-
   async createGeneralJournal() {
     const amount = this.rndAmount();
     // const job = { UID: this.any(this.jobs).UID };
     const model = {
       DisplayID: this.uniqueNumber(),
-      DateOccurred: this.rndDate(),
+      DateOccurred: this.transactionDate(),
       Memo: faker.finance.transactionDescription(),
       Lines: [
         {
@@ -476,7 +471,7 @@ export class Myob extends Base {
       PayeeAddress: faker.address.streetAddress(),
       StatementParticulars: "",
       PaymentNumber: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       AmountPaid: this.rndAmount(300),
       Memo: faker.finance.transactionDescription(),
       Invoices: [
@@ -504,7 +499,7 @@ export class Myob extends Base {
     ]);
     const model = {
       Number: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       SupplierInvoiceNumber: null,
       Customer: this.anyUID(this.customers),
       ShipToAddress: faker.address.streetAddress(),
@@ -514,9 +509,9 @@ export class Myob extends Base {
         BalanceDueDate: 30,
         DiscountForEarlyPayment: 0,
         MonthlyChargeForLatePayment: 0,
-        DiscountExpiryDate: this.rndDate(),
+        DiscountExpiryDate: this.transactionDate(),
         Discount: 0,
-        DueDate: this.rndDate(),
+        DueDate: this.transactionDate(),
       },
       IsTaxInclusive: false,
       IsReportable: false,
@@ -575,7 +570,7 @@ export class Myob extends Base {
     ]);
     const model = {
       Number: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       SupplierInvoiceNumber: null,
       Customer: this.anyUID(this.customers),
       ShipToAddress: faker.address.streetAddress(),
@@ -585,9 +580,9 @@ export class Myob extends Base {
         BalanceDueDate: 30,
         DiscountForEarlyPayment: 0,
         MonthlyChargeForLatePayment: 0,
-        DiscountExpiryDate: this.rndDate(),
+        DiscountExpiryDate: this.transactionDate(),
         Discount: 0,
-        DueDate: this.rndDate(),
+        DueDate: this.transactionDate(),
       },
       IsTaxInclusive: false,
       IsReportable: false,
@@ -640,7 +635,7 @@ export class Myob extends Base {
     const unit = Math.ceil(Math.random() * 20);
     const model = {
       Number: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       SupplierInvoiceNumber: this.uniqueNumber(),
       Supplier: this.any(this.suppliers),
       ShipToAddress: faker.address.streetAddress(),
@@ -650,9 +645,9 @@ export class Myob extends Base {
         BalanceDueDate: 30,
         DiscountForEarlyPayment: 0,
         MonthlyChargeForLatePayment: 0,
-        DiscountExpiryDate: this.rndDate(),
+        DiscountExpiryDate: this.transactionDate(),
         Discount: 0,
-        DueDate: this.rndDate(),
+        DueDate: this.transactionDate(),
       },
       IsTaxInclusive: false,
       IsReportable: false,
@@ -679,7 +674,7 @@ export class Myob extends Base {
       Category: null,
       Comment: faker.lorem.paragraph(),
       ShippingMethod: null,
-      PromisedDate: this.rndDate(),
+      PromisedDate: this.transactionDate(),
       JournalMemo: faker.finance.transactionDescription(),
       BillDeliveryStatus: "Print",
       AppliedToDate: 0,
@@ -728,7 +723,7 @@ export class Myob extends Base {
       PayeeAddress: faker.address.streetAddress(),
       StatementParticulars: "",
       PaymentNumber: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       AmountPaid: po.BalanceDueAmount,
       Memo: faker.lorem.sentence(),
       Lines: [
@@ -764,7 +759,7 @@ export class Myob extends Base {
       PayeeAddress: faker.address.streetAddress(),
       StatementParticulars: "",
       PaymentNumber: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       AmountPaid: this.rndAmount(),
       IsTaxInclusive: true,
       TotalTax: 9.1,
@@ -800,7 +795,7 @@ export class Myob extends Base {
       PayeeAddress: faker.address.streetAddress(),
       StatementParticulars: "",
       PaymentNumber: this.uniqueNumber(),
-      Date: this.rndDate(),
+      Date: this.transactionDate(),
       AmountPaid: this.rndAmount(),
       IsTaxInclusive: true,
       TotalTax: 9.1,
