@@ -32,9 +32,6 @@ export class Myob extends Base {
       UID: this.any(items).UID,
     };
   }
-  safeNum(n: number) {
-    return +n.toFixed(2);
-  }
   randTax(type?: string) {
     const filtering = this.taxCodes.filter(
       (x: any) =>
@@ -56,6 +53,7 @@ export class Myob extends Base {
 
     return this.any(filtering);
   }
+
   buildAuthUrl() {
     return `https://secure.myob.com/oauth2/account/authorize?client_id=${this.clientId}&redirect_uri=${process.env.MYOB_REDIRECT_URL}&response_type=code&scope=CompanyFile la.global`;
   }
@@ -429,12 +427,13 @@ export class Myob extends Base {
 
     const Classification = this.any(Object.keys(accountMapping));
     const Type = this.any(accountMapping[Classification]);
-    const IsHeader = false; // Math.random() < 0.2;
+    const IsHeader = Math.random() < 0.2;
 
     const ParentAccount = this.randAccount(Type, this.any([2, 3]), true);
     if (!ParentAccount) {
-      return await this.createAccount()
+      return await this.createAccount();
     }
+
     const model = {
       Name:
         Type +
@@ -467,7 +466,7 @@ export class Myob extends Base {
     const invoice = this.any(
       this.openInvoices.filter((x) => x.BalanceDueAmount > 0)
     );
-
+    if (!invoice) return;
     this.openInvoices = this.openInvoices.filter((x) => x.UID !== invoice.UID);
 
     const model = {
@@ -704,6 +703,10 @@ export class Myob extends Base {
     const model = this.getPurchaseModel();
     return this.post("Purchase/Bill/Item", model, "Number");
   }
+  async createPurchaseBillService() {
+    const model = this.getPurchaseModel();
+    return this.post("Purchase/Bill/Service", model, "Number");
+  }
 
   async createPurchaseSupplierPayment() {
     // finder the supplier
@@ -742,6 +745,7 @@ export class Myob extends Base {
     };
     return this.post("Purchase/SupplierPayment", model, "PaymentNumber");
   }
+
   async createBankingRecieveMoney() {
     const allowAccounts = ["Bank", "CreditCard"];
     const recievedAccount = [

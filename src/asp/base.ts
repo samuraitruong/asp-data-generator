@@ -4,6 +4,9 @@ import hashObject from "object-hash";
 
 export class Base {
   constructor(private substractDates: number, private dateFormat: string) { }
+  safeNum(n: number) {
+    return +n.toFixed(2);
+  }
   transactionDate() {
     const date = Math.floor(Math.random() * this.substractDates);
     const m = moment().subtract(date, "days");
