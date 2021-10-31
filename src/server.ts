@@ -16,7 +16,7 @@ const xeroClient = new XeroClient({
   clientSecret: process.env.XERO_CLIENT_SECRET || "",
   redirectUris: [
     process.env.XERO_REDIRECT_URL ||
-      "https://local.aspgenerator.com:3443/oauth/xero",
+    "https://local.aspgenerator.com:3443/oauth/xero",
   ],
   scopes: XERO_SCOPES,
   // state: 'returnPage=my-sweet-dashboard', // custom params (optional)
@@ -36,7 +36,7 @@ const certificate = fs.readFileSync("certs/server.crt", "utf8");
 const app = express();
 
 app.get("/oauth/myob", async (req, res) => {
-  const myob = new Myob();
+  const myob = new Myob(new Date().toISOString(), new Date().toISOString());
   try {
     const token = await myob.getAccessToken(req.url);
 
@@ -82,7 +82,7 @@ app.get("/connect/xero", async (req, res) => {
 });
 
 app.get("/connect/myob", async (req, res) => {
-  const myob = new Myob();
+  const myob = new Myob(new Date().toISOString(), new Date().toISOString());
 
   const consentUrl = await myob.buildAuthUrl();
   res.redirect(consentUrl);

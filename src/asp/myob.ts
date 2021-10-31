@@ -4,20 +4,20 @@ import fs from "fs-extra";
 import path from "path";
 import faker from "faker";
 import { Base } from "./base";
-import moment from "moment";
 
 export class Myob extends Base {
   clientId = process.env.MYOB_CLIENT_ID;
   clientSeret = process.env.MYOB_CLIENT_SECRET;
   companyFileUrl = "https://api.myob.com";
   tokenSet: any = {};
-  items: [];
-  customers: [];
-  suppliers: [];
-  taxCodes: [];
-  accounts: [];
-  jobs: [];
+  items = [];
+  customers = [];
+  suppliers = [];
+  taxCodes = [];
+  accounts = [];
+  jobs = [];
   uid = [];
+  accountMap: any = {};
   openInvoices = [];
   constructor(startDate: string, endDate: string) {
     super(startDate, endDate, "iso");
@@ -45,13 +45,28 @@ export class Myob extends Base {
   }
 
   randAccount(type?: string, level?: number, header?: boolean) {
-    // console.log(type, level, header);
     const filtering = this.accounts
-      .filter((x: any) => type === undefined || x.Type === type)
-      .filter((x: any) => !level || x.Level === level)
+      .filter(
+        (x: any) =>
+          type === undefined || x.Type === type || x.Classification === type
+      )
+      .filter((x: any) => x.Level === 2)
       .filter((x: any) => x.IsHeader === header);
+    const unuseAccount = filtering.filter((x: any) => !this.accountMap[x.UID]);
 
-    return this.any(filtering);
+    const zeroBalance = unuseAccount.filter((x) => x.CurrenBalance === 0);
+    const a =
+      this.any(zeroBalance) || this.any(unuseAccount) || this.any(filtering);
+    if (!a) {
+      console.log("No Account found", {
+        type,
+        level,
+        header,
+        totalAcc: Object.keys(this.accountMap).length,
+      });
+    }
+    this.accountMap[a.UID] = a;
+    return a;
   }
 
   buildAuthUrl() {
@@ -133,20 +148,32 @@ export class Myob extends Base {
     return res.data;
   }
 
-  async get(url) {
+  async get(url, skip = 0) {
+    let allData: any[] = [];
     const urlWithQuery =
-      url + (url.includes("?") ? "&$top=1000" : "?$top=1000");
+      url +
+      (url.includes("?")
+        ? "&$top=1000&$skip=" + skip
+        : "?$top=1000&$skip=" + skip);
     const res = await axios.get(
       `${this.companyFileUrl}/${urlWithQuery}`,
       this.defaultHeaders()
     );
     console.log("Fetch %s -> %d", url, res.data.Items.length);
     const data = res.data.Items || res.data;
-    const entity = url.split("?")[0];
-    const filePath = "./data/myob/" + entity + ".json";
-    fs.mkdirsSync(path.dirname(filePath));
-    fs.writeJSONSync(filePath, data, { spaces: 4 });
-    return data;
+    allData = [...allData, ...data];
+    if (data.length === 1000) {
+      const nextPageData = await this.get(url, skip + 1000);
+      allData = [...allData, ...nextPageData];
+    }
+    if (skip === 0) {
+      console.log("TOTAL %s -> %d", url, allData.length);
+      const entity = url.split("?")[0];
+      const filePath = "./data/myob/" + entity + ".json";
+      fs.mkdirsSync(path.dirname(filePath));
+      fs.writeJSONSync(filePath, allData, { spaces: 4 });
+    }
+    return allData;
   }
 
   async fetchCommonEntities() {
@@ -156,6 +183,9 @@ export class Myob extends Base {
     this.customers = await this.get("Contact/Customer");
     this.items = await this.get("Inventory/Item");
     this.suppliers = await this.get("Contact/Supplier");
+
+    // console.log(this.randAccount("AccountsPayable", undefined, false));
+    // throw new Error("ss");
   }
 
   async post(url, model, fieldName = "UID", retry = 1) {
@@ -206,10 +236,18 @@ export class Myob extends Base {
       IsActive: true,
       Description: faker.lorem.sentence(),
       IncomeAccount: {
-        UID: this.randAccount("Income", undefined, false).UID,
+        UID: this.randAccount(
+          this.any(["OtherIncome", "Income", "Asset"]),
+          undefined,
+          false
+        ).UID,
       },
       ExpenseAccount: {
-        UID: this.randAccount("Expense", undefined, false).UID,
+        UID: this.randAccount(
+          this.any(["OtherExpense", "Expense"]),
+          undefined,
+          false
+        ).UID,
       },
       BuyingDetails: {
         TaxCode: this.anyUID(this.taxCodes),
@@ -304,7 +342,18 @@ export class Myob extends Base {
         FreightTaxCode: {
           UID: this.any(this.taxCodes).UID,
         },
-        ExpenseAccount: this.randAccount("Expense"),
+        ExpenseAccount: this.randAccount(
+          this.any([
+            "Expense",
+            "OtherExpense",
+            "Asset",
+            "Liability",
+            "Income",
+            "OtherIncome",
+          ]),
+          undefined,
+          false
+        ),
       },
     };
     return this.post("Contact/Supplier", model, "DisplayID");
@@ -365,7 +414,7 @@ export class Myob extends Base {
       Lines: [
         {
           Account: {
-            UID: this.randAccount("AccountsPayable", undefined, false).UID,
+            UID: this.randAccount("Liability", undefined, false).UID,
           },
           // Job: job,
           Memo: faker.lorem.sentence(),
@@ -377,7 +426,7 @@ export class Myob extends Base {
         },
         {
           Account: {
-            UID: this.randAccount("AccountReceivable", undefined, false).UID,
+            UID: this.randAccount("Asset", undefined, false).UID,
           },
           //  Job: job,
           Memo: faker.lorem.sentence(),
@@ -453,7 +502,7 @@ export class Myob extends Base {
 
   async createSaleCustomerPayment() {
     // need to query the customer invoice and place the payment.
-    if (this.openInvoices.length < 10) {
+    if (this.openInvoices.length === 0) {
       this.openInvoices = await this.get(
         "Sale/Invoice?$filter=Status eq 'Open'"
       );
@@ -496,6 +545,9 @@ export class Myob extends Base {
       "CostOfSales",
       "OtherIncome",
       "Expense",
+      "Asset",
+      "Equity",
+      "OtherExpense",
     ]);
     const model = {
       Number: this.uniqueNumber(),
@@ -566,6 +618,7 @@ export class Myob extends Base {
       "Income",
       "CostOfSales",
       "OtherIncome",
+      "OtherExpense",
       "Expense",
     ]);
     const model = {
@@ -702,16 +755,24 @@ export class Myob extends Base {
     const model = this.getPurchaseModel();
     return this.post("Purchase/Bill/Service", model, "Number");
   }
-
+  openOrders = {
+    Bill: [],
+    Order: [],
+  };
   async createPurchaseSupplierPayment() {
     // finder the supplier
     const type = this.any(["Bill", "Order"]);
+    if (this.openOrders[type].length === 0) {
+      this.openOrders[type] = await this.get(
+        `Purchase/${type}/Item?$filter=Status eq 'Open'`
+      );
+      console.log("Total open ", type, this.openOrders[type].length);
+    }
 
-    const orders = await this.get(
-      `Purchase/${type}/Item?$filter=Status eq 'Open'`
-    );
     const po = this.any(
-      orders.filter((x) => x.BalanceDueAmount > 0 && !this.uid.includes(x.UID))
+      this.openOrders[type].filter(
+        (x) => x.BalanceDueAmount > 0 && !this.uid.includes(x.UID)
+      )
     );
     if (!po) return;
     this.uid.push(po.UID);
@@ -831,11 +892,32 @@ export class Myob extends Base {
     ];
   }
 
+  async createFinancialData() {
+    return [
+      await this.createSaleInvoiceItem(),
+      await this.createGeneralJournal(),
+      await this.createPurchaseOrderItem(),
+      await this.createPurchaseBillItem(),
+    ];
+  }
+
+  async createPayment() {
+    return [
+      await this.createSaleCustomerPayment(),
+      await this.createPurchaseSupplierPayment(),
+    ];
+  }
+
   async createTestData() {
     return [
       await this.createSaleInvoiceItem(),
       await this.createGeneralJournal(),
       await this.createSaleCustomerPayment(),
+      await this.createPurchaseOrderItem(),
+      await this.createPurchaseSupplierPayment(),
+      await this.createPurchaseBillItem(),
+      // await this.createBankingSpendMoney(),
+      // await this.createBankingRecieveMoney(),
     ];
   }
 }

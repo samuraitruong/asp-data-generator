@@ -7,7 +7,12 @@ export class Base {
     private startDate: string,
     private endDate: string,
     private dateFormat: string
-  ) {}
+  ) {
+    // constructor
+  }
+  safeNum(n: number) {
+    return +n.toFixed(2);
+  }
   transactionDate() {
     const diff = moment(this.endDate).diff(this.startDate, "days");
     const date = Math.floor(Math.random() * diff);
